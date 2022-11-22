@@ -767,6 +767,8 @@ class ID3V2 extends ID3Define {
 
   int _parseV2_4ExtendedHeader(int start) {
     // Extended header size   4 * %0xxxxxxx
+    // Where the 'Extended header size' is the size of the whole extended
+    // header, stored as a 32 bit synchsafe integer.
     final extendedSizeBytes = readValue(extendedV2_4Header[0], start);
     start += extendedV2_4Header[0].length;
     _extendedSize = (extendedSizeBytes[3] & 0x7F) +

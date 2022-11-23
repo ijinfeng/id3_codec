@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:id3_codec/byte_codec.dart';
 import 'package:id3_codec/content_decoder.dart';
+import 'package:id3_codec/id3_constant.dart';
+import 'package:id3_codec/id3_metainfo.dart';
 
 /// Support ID3V1, V1.1, V2.2, V2.3, V2.4
 abstract class ID3Define {
@@ -34,139 +36,6 @@ class ID3V1 extends ID3Define {
   @override
   String get version => "V1";
 
-  /// Genre list in ID3v1
-  /// https://web.archive.org/web/20151121080450/http://id3.org/id3v2.3.0#Appendix_A_-_Genre_List_from_ID3v1
-  List<String> get genreList => [
-        'Blues',
-        'Classic Rock',
-        'Country',
-        'Dance',
-        'Disco',
-        'Funk',
-        'Grunge',
-        'Hip-Hop',
-        'Jazz',
-        'Metal',
-        'New Age',
-        'Oldies',
-        'Other',
-        'Pop',
-        'R&B',
-        'Rap',
-        'Reggae',
-        'Rock',
-        'Techno',
-        'Industrial',
-        'Alternative',
-        'Ska',
-        'Death Metal',
-        'Pranks',
-        'Soundtrack',
-        'Euro-Techno',
-        'Ambient',
-        'Trip-Hop',
-        'Vocal',
-        'Jazz+Funk',
-        'Fusion',
-        'Trance',
-        'Classical',
-        'Instrumental',
-        'Acid',
-        'House',
-        'Game',
-        'Sound clip',
-        'Gospel',
-        'Noise',
-        'AlternRock',
-        'Bass',
-        'Soul',
-        'Punk',
-        'Space',
-        'Meditative',
-        'Instrumental Pop',
-        'Instrumental Rock',
-        'Ethnic',
-        'Gothic',
-        'Darkwave',
-        'Techno-Industrial',
-        'Electronic',
-        'Pop-Folk',
-        'Eurodance',
-        'Dream',
-        'Southern Rock',
-        'Comedy',
-        'Cult',
-        'Gangsta',
-        'Top 40',
-        'Christian Rap',
-        'Pop/Funk',
-        'Jungle',
-        'Native American',
-        'Cabaret',
-        'New Wave',
-        'Psychedelic',
-        'Rave',
-        'Showtunes',
-        'Trailer',
-        'Lo-Fi',
-        'Tribal',
-        'Acid Punk',
-        'Acid Jazz',
-        'Polka',
-        'Retro',
-        'Musical',
-        'Rock & Roll',
-        'Hard Rock',
-        // The following genres are Winamp extensions
-        // 80 - 125
-        'Folk',
-        'Folk-Rock',
-        'National Folk',
-        'Swing',
-        'Fast Fusion',
-        'Bebob',
-        'Latin',
-        'Revival',
-        'Celtic',
-        'Bluegrass',
-        'Avantgarde',
-        'Gothic Rock',
-        'Progressive Rock',
-        'Psychedelic Rock',
-        'Symphonic Rock',
-        'Slow Rock',
-        'Big Band',
-        'Chorus',
-        'Easy Listening',
-        'Acoustic',
-        'Humour',
-        'Speech',
-        'Chanson',
-        'Opera',
-        'Chamber Music',
-        'Sonata',
-        'Symphony',
-        'Booty Bass',
-        'Primus',
-        'Porn Groove',
-        'Satire',
-        'Slow Jam',
-        'Club',
-        'Tango',
-        'Samba',
-        'Folklore',
-        'Ballad',
-        'Power Ballad',
-        'Rhythmic Soul',
-        'Freestyle',
-        'Duet',
-        'Punk Rock',
-        'Drum Solo',
-        'A capella',
-        'Euro-House',
-        'Dance Hall',
-      ];
-
   /// total 128 bytes
   List<ID3Fragment> get fragments => [
         ID3Fragment(name: 'Header', length: 3),
@@ -184,6 +53,10 @@ class ID3V1 extends ID3Define {
     if (readValue(fragments[0], start) != 'TAG') {
       return false;
     }
+    // Range
+    metadata.setRangeStart(start);
+    metadata.setRangeLength(totalLength);
+
     final codec = ByteCodec();
 
     metadata.set(value: version, key: "Version");
@@ -293,237 +166,6 @@ class ID3V2 extends ID3Define {
         // Content
       ];
 
-  Map<String, String> get frameV2_2Map => {
-        'BUF': 'Recommended buffer size',
-        'CNT': 'Play counter',
-        'COM': 'Comments',
-        'CRA': 'Audio encryption',
-        'CRM': 'Encrypted meta frame',
-        'ETC': 'Event timing codes',
-        'EQU': 'Equalization',
-        'GEO': 'General encapsulated object',
-        'IPL': 'Involved people list',
-        'LNK': 'Linked information',
-        'MCI': 'Music CD Identifier',
-        'MLL': 'MPEG location lookup table',
-        'PIC': 'Attached picture',
-        'POP': 'Popularimeter',
-        'REV': 'Reverb',
-        'RVA': 'Relative volume adjustment',
-        'SLT': 'Synchronized lyric/text',
-        'STC': 'Synced tempo codes',
-        'TAL': 'Album/Movie/Show title',
-        'TBP': 'BPM (Beats Per Minute)',
-        'TCM': 'Composer',
-        'TCO': 'Content type',
-        'TCR': 'Copyright message',
-        'TDA': 'Date',
-        'TDY': 'Playlist delay',
-        'TEN': 'Encoded by',
-        'TFT': 'File type',
-        'TIM': 'Time',
-        'TKE': 'Initial key',
-        'TLA': 'Language(s)',
-        'TLE': 'Length',
-        'TMT': 'Media type',
-        'TOA': 'Original artist(s)/performer(s)',
-        'TOF': 'Original filename',
-        'TOL': 'Original Lyricist(s)/text writer(s)',
-        'TOR': 'Original release year',
-        'TOT': 'Original album/Movie/Show title',
-        'TP1': 'Lead artist(s)/Lead performer(s)/Soloist(s)/Performing group',
-        'TP2': 'Band/Orchestra/Accompaniment',
-        'TP3': 'Conductor/Performer refinement',
-        'TP4': 'Interpreted, remixed, or otherwise modified by',
-        'TPA': 'Part of a set',
-        'TPB': 'Publisher',
-        'TRC': 'ISRC (International Standard Recording Code)',
-        'TRD': 'Recording dates',
-        'TRK': 'Track number/Position in set',
-        'TSI': 'Size',
-        'TSS': 'Software/hardware and settings used for encoding',
-        'TT1': 'Content group description',
-        'TT2': 'Title/Songname/Content description',
-        'TT3': 'Subtitle/Description refinement',
-        'TXT': 'Lyricist/text writer',
-        'TXX': 'User defined text information frame',
-        'TYE': 'Year',
-        'UFI': 'Unique file identifier',
-        'ULT': 'Unsychronized lyric/text transcription',
-        'WAF': 'Official audio file webpage',
-        'WAR': 'Official artist/performer webpage',
-        'WAS': 'Official audio source webpage',
-        'WCM': 'Commercial information',
-        'WCP': 'Copyright/Legal information',
-        'WPB': 'Publishers official webpage',
-        'WXX': 'User defined URL link frame',
-      };
-
-  // https://id3.org/d3v2.3.0
-  Map<String, String> get frameV2_3Map => {
-        'AENC': 'Audio encryption',
-        'APIC': 'Attached picture',
-        'COMM': 'Comments',
-        'COMR': 'Commercial frame',
-        'ENCR': 'Encryption method registration',
-        'EQUA': 'Equalization',
-        'ETCO': 'Event timing codes',
-        'GEOB': 'General encapsulated object',
-        'GRID': 'Group identification registration',
-        'IPLS': 'Involved people list',
-        'LINK': 'Linked information',
-        'MCDI': 'Music CD identifier',
-        'MLLT': 'MPEG location lookup table',
-        'OWNE': 'Ownership frame',
-        'PRIV': 'Private frame',
-        'PCNT': 'Play counter',
-        'POPM': 'Popularimeter',
-        'POSS': 'Position synchronisation frame',
-        'RBUF': 'Recommended buffer size',
-        'RVAD': 'Relative volume adjustment',
-        'RVRB': 'Reverb',
-        'SYLT': 'Synchronized lyric/text',
-        'SYTC': 'Synchronized tempo codes',
-        'TALB': 'Album/Movie/Show title',
-        'TBPM': 'BPM (beats per minute)',
-        'TCOM': 'Composer',
-        'TCON': 'Content type',
-        'TCOP': 'Copyright message',
-        'TDAT': 'Date',
-        'TDLY': 'Playlist delay',
-        'TENC': 'Encoded by',
-        'TEXT': 'Lyricist/Text writer',
-        'TFLT': 'File type',
-        'TIME': 'Time',
-        'TIT1': 'Content group description',
-        'TIT2': 'Title/songname/content description',
-        'TIT3': 'Subtitle/Description refinement',
-        'TKEY': 'Initial key',
-        'TLAN': 'Language(s)',
-        'TLEN': 'Length',
-        'TMED': 'Media type',
-        'TOAL': 'Original album/movie/show title',
-        'TOFN': 'Original filename',
-        'TOLY': 'Original lyricist(s)/text writer(s)',
-        'TOPE': 'Original artist(s)/performer(s)',
-        'TORY': 'Original release year',
-        'TOWN': 'File owner/licensee',
-        'TPE1': 'Lead performer(s)/Soloist(s)',
-        'TPE2': 'Band/orchestra/accompaniment',
-        'TPE3': 'Conductor/performer refinement',
-        'TPE4': 'Interpreted, remixed, or otherwise modified by',
-        'TPOS': 'Part of a set',
-        'TPUB': 'Publisher',
-        'TRCK': 'Track number/Position in set',
-        'TRDA': 'Recording dates',
-        'TRSN': 'Internet radio station name',
-        'TRSO': 'Internet radio station owner',
-        'TSIZ': 'Size',
-        'TSRC': 'ISRC (international standard recording code)',
-        'TSSE': 'Software/Hardware and settings used for encoding',
-        'TYER': 'Year',
-        'TXXX': 'User defined text information frame',
-        'UFID': 'Unique file identifier',
-        'USER': 'Terms of use',
-        'USLT': 'Unsychronized lyric/text transcription',
-        'WCOM': 'Commercial information',
-        'WCOP': 'Copyright/Legal information',
-        'WOAF': 'Official audio file webpage',
-        'WOAR': 'Official artist/performer webpage',
-        'WOAS': 'Official audio source webpage',
-        'WORS': 'Official internet radio station homepage',
-        'WPAY': 'Payment',
-        'WPUB': 'Publishers official webpage',
-        'WXXX': 'User defined URL link frame',
-      };
-
-  // https://id3.org/id3v2.4.0-frames
-  Map<String, String> get frameV2_4Map => {
-        'AENC': 'Audio encryption',
-        'APIC': 'Attached picture',
-        'ASPI': 'Audio seek point ',
-        'COMM': 'Comments',
-        'COMR': 'Commercial ',
-        'ENCR': 'Encryption method registration',
-        'EQU2': 'Equalisation (2)',
-        'ETCO': 'Event timing ',
-        'GEOB': 'General encapsulated object',
-        'GRID': 'Group identification registr',
-        'LINK': 'Linked inform',
-        'MCDI': 'Music CD identifier',
-        'MLLT': 'MPEG location lookup ',
-        'OWNE': 'Ownership ',
-        'PRIV': 'Private frame',
-        'PCNT': 'Play counter',
-        'POPM': 'Popularimeter',
-        'POSS': 'Position synchronisation ',
-        'RBUF': 'Recommended buffer size',
-        'RVA2': 'Relative volume adjustment (2)',
-        'RVRB': 'R',
-        'SEEK': 'Seek frame',
-        'SIGN': 'Signature frame',
-        'SYLT': 'Synchronised lyric/text',
-        'SYTC': 'Synchronised tempo ',
-        'TALB': 'Album/Movie/Show title',
-        'TBPM': 'BPM (beats per minute)',
-        'TCOM': 'Composer',
-        'TCON': 'Content type',
-        'TCOP': 'Copyright message',
-        'TDEN': 'Encoding time',
-        'TDLY': 'Playlist delay',
-        'TDOR': 'Original release time',
-        'TDRC': 'Recording time',
-        'TDRL': 'Release time',
-        'TDTG': 'Tagging time',
-        'TENC': 'Encoded by',
-        'TEXT': 'Lyricist/Text writer',
-        'TFLT': 'File type',
-        'TIPL': 'Involved people list',
-        'TIT1': 'Content group description',
-        'TIT2': 'Title/songname/content description',
-        'TIT3': 'Subtitle/Description refinement',
-        'TKEY': 'Initial key',
-        'TLAN': 'Language(s)',
-        'TLEN': 'Length',
-        'TMCL': 'Musician credits list',
-        'TMED': 'Media type',
-        'TMOO': 'Mood',
-        'TOAL': 'Original album/movie/show title',
-        'TOFN': 'Original filename',
-        'TOLY': 'Original lyricist(s)/text writer(s)',
-        'TOPE': 'Original artist(s)/performer(s)',
-        'TOWN': 'File owner/licensee',
-        'TPE1': 'Lead performer(s)/Soloist(s)',
-        'TPE2': 'Band/orchestra/accompaniment',
-        'TPE3': 'Conductor/performer refinement',
-        'TPE4': 'Interpreted, remixed, or otherwise modified by',
-        'TPOS': 'Part of a set',
-        'TPRO': 'Produced notice',
-        'TPUB': 'Publisher',
-        'TRCK': 'Track number/Position in set',
-        'TRSN': 'Internet radio station name',
-        'TRSO': 'Internet radio station owner',
-        'TSOA': 'Album sort order',
-        'TSOP': 'Performer sort order',
-        'TSOT': 'Title sort order',
-        'TSRC': 'ISRC (international standard recording code)',
-        'TSSE': 'Software/Hardware and settings used for encoding',
-        'TSST': 'Set subtitle',
-        'TXXX': 'User defined text information ',
-        'UFID': 'Unique file identifier',
-        'USER': 'Terms of use',
-        'USLT': 'Unsynchronised lyric/text transcri',
-        'WCOM': 'Commercial information',
-        'WCOP': 'Copyright/Legal information',
-        'WOAF': 'Official audio file webpage',
-        'WOAR': 'Official artist/performer webpage',
-        'WOAS': 'Official audio source webpage',
-        'WORS': 'Official Internet radio station homepage',
-        'WPAY': 'Payment',
-        'WPUB': 'Publishers official webpage',
-        'WXXX': 'User defined URL link frame',
-      };
-
   /// All field sizes except Header
   int _size = 0;
 
@@ -554,7 +196,7 @@ class ID3V2 extends ID3Define {
     int start = 0;
     if (readValue(header[0], start) != 'ID3') {
       // Search from end of file.
-      start = _searchFooterReturnFixStart(bytes.length - 11);
+      start = _searchFooterReturnFixStart(bytes.length - 10);
       if (start == 0) {
         return false;
       } else {
@@ -562,6 +204,9 @@ class ID3V2 extends ID3Define {
         _hasFooter = true;
       }
     }
+    // Range
+    metadata.setRangeStart(start);
+
     start += header[0].length;
 
     // [ Header ]
@@ -580,6 +225,8 @@ class ID3V2 extends ID3Define {
     if (_hasFooter) {
       metadata.set(value: '<Has Footer>', key: 'Footer');
     }
+
+    metadata.setRangeLength(totalLength);
 
     return true;
   }
@@ -1406,141 +1053,4 @@ class ID3Fragment {
     required this.length,
     this.needDecode = true,
   });
-}
-
-class ID3MetataInfo {
-  final Map<String, dynamic> _metadata = {};
-
-  int get length => _metadata.length;
-
-  final List _containers = [];
-
-  bool get _hasContainer => _containers.isNotEmpty;
-
-  getContainer() {
-    if (_hasContainer) {
-      return _containers.last;
-    } else {
-      return null;
-    }
-  }
-
-  void set({required dynamic value, required String key, String? desc}) {
-    final lastContainer = getContainer();
-    if (lastContainer != null) {
-      if (lastContainer is List) {
-        List list = lastContainer;
-        list.add({key: _ID3MetadataValue(value: value, desc: desc)});
-      } else if (lastContainer is Map) {
-        Map map = lastContainer;
-        map[key] = _ID3MetadataValue(value: value, desc: desc);
-      } else {
-        assert(false, "Unknown container: $lastContainer.");
-      }
-    } else {
-      _metadata[key] = _ID3MetadataValue(value: value, desc: desc);
-    }
-  }
-
-  void enterMapContainer(String name) {
-    assert(!_metadata.containsKey(name),
-        'The same boundary key[$name] already exists.');
-    final lastContainer = getContainer();
-    if (lastContainer != null) {
-      if (lastContainer is List) {
-        List container = lastContainer;
-        Map map = {};
-        container.add(map);
-        _containers.add(map);
-      } else if (lastContainer is Map) {
-        Map container = lastContainer;
-        Map map = {};
-        container[name] = map;
-        _containers.add(map);
-      }
-    } else {
-      _metadata[name] = {};
-      _containers.add(_metadata[name]);
-    }
-  }
-
-  void enterListContainer(String name) {
-    assert(!_metadata.containsKey(name),
-        'The same boundary key[$name] already exists.');
-    final lastContainer = getContainer();
-    if (lastContainer != null) {
-      if (lastContainer is List) {
-        List container = lastContainer;
-        List list = [];
-        container.add(list);
-        _containers.add(list);
-      } else if (lastContainer is Map) {
-        Map container = lastContainer;
-        List list = [];
-        container[name] = list;
-        _containers.add(list);
-      }
-    } else {
-      _metadata[name] = [];
-      _containers.add(_metadata[name]);
-    }
-  }
-
-  void leaveContainer() {
-    if (_hasContainer) {
-      _containers.removeLast();
-    }
-  }
-
-  Map<String, dynamic> toTagMap() {
-    return _metadata;
-  }
-
-  @override
-  String toString() {
-    String ret = '[ ID3MetaInfo ]\n';
-
-    String tranferValue(dynamic value, String key) {
-      String ret = '';
-      if (value is _ID3MetadataValue) {
-        ret += "- $key: ${value.toString()}\n";
-      } else {
-        if (value is Map) {
-          for (var element in value.entries) {
-            final key = element.key;
-            final value = element.value;  
-            ret += tranferValue(value, key);
-          }
-        } else if (value is List) {
-          for (var element in value) {
-            ret += tranferValue(element, key);
-          }
-        } else {
-          ret += "- $key: $value\n";
-        }
-      }
-      return ret;
-    }
-
-    for (var element in _metadata.entries) {
-      final key = element.key;
-      final value = element.value;
-      ret += "== $key ==\n";
-      ret += tranferValue(value, key);
-    }
-    ret += "=========> All data received <=======";
-    return ret;
-  }
-}
-
-class _ID3MetadataValue {
-  _ID3MetadataValue({required this.value, this.desc});
-
-  final dynamic value;
-  final String? desc;
-
-  @override
-  String toString() {
-    return desc != null ? "$value[$desc]" : "$value";
-  }
 }

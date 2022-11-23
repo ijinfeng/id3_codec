@@ -1,7 +1,8 @@
 import 'package:id3_codec/id3_define.dart';
+import 'package:id3_codec/id3_metainfo.dart';
 
 class ID3Decoder {
-  ID3Decoder(List<int> bytes) : _bytes = bytes;
+  const ID3Decoder(List<int> bytes) : _bytes = bytes;
 
   final List<int> _bytes;
   bool get isEmpty => _bytes.isEmpty;

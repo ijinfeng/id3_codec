@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:id3/id3.dart';
 import 'package:id3_codec/byte_codec.dart';
@@ -46,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
       bytes = value.buffer.asUint8List();
     });
     // bytes = [0x11, 0x22, 0x33];
+    debugPrint({"hah":12}.toString());
   }
 
   @override
@@ -63,8 +65,10 @@ class _MyHomePageState extends State<MyHomePage> {
               // final data = await rootBundle.load("assets/song1.mp3");
               // final bytes = data.buffer.asUint8List();
               final decoder = ID3Decoder(bytes);
-              decoder.decodeAsync().then((metadata) {
-                debugPrint(metadata.toString());
+              decoder.decodeAsync().then((metadatas) {
+                for (var metadata in metadatas) {
+                  debugPrint(metadata.toString()); 
+                }
               });
             },
             child: const Text('ID3 解码')),
@@ -78,6 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
               }
             },
             child: const Text('三方库[id3] 解码')),
+
+  const Divider(),
 
             TextButton(
             onPressed: () async {
@@ -94,7 +100,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 genre: 2
                ));
             },
-            child: const Text('ID3 编码'))
+            child: const Text('编码 ID3v1')),
+
+            TextButton(
+            onPressed: () async {
+              
+              final encoder = ID3Encoder(bytes);
+              // ignore: prefer_const_constructors
+              bytes = encoder.encode(MetadataV1Body(
+                title: 'Ting wo shuo,xiexie ni',
+                artist: 'Wu ming',
+                album: 'Gan en you ni',
+                year: '2021',
+                comment: 'I am very happy!',
+                track: 1,
+                genre: 2
+               ));
+            },
+            child: const Text('编码 ID3v2.3')),
           ],
         ),
       ),

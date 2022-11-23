@@ -37,9 +37,9 @@ class ByteCodec {
     if (decodeType == ByteCodecType.ISO_8859_1) {
       return latin1.decode(bytes, allowInvalid: true);
     } else if (decodeType == ByteCodecType.UTF16) {
-      return _decodeToUTF16(bytes);
+      return _decodeWithUTF16(bytes);
     } else if (decodeType == ByteCodecType.UTF16BE) {
-      return _decodeToUTF16BE(bytes);
+      return _decodeWithUTF16BE(bytes);
     } else if (decodeType == ByteCodecType.UTF8) {
       return utf8.decode(bytes, allowMalformed: true);
     } else {
@@ -48,18 +48,18 @@ class ByteCodec {
   }
 
   // https://zh.wikipedia.org/wiki/UTF-16
-  String _decodeToUTF16(List<int> bytes) {
+  String _decodeWithUTF16(List<int> bytes) {
     final bom = bytes.sublist(0, 2);
     if (bom[0] == 0xFF && bom[1] == 0xFE) {
-      return _decodeToUTF16LE(bytes.sublist(2));
+      return _decodeWithUTF16LE(bytes.sublist(2));
     } else if (bom[0] == 0xFE && bom[1] == 0xFF) {
-      return _decodeToUTF16BE(bytes.sublist(2));
+      return _decodeWithUTF16BE(bytes.sublist(2));
     }
     return '';
   }
 
   // BE 即 big-endian，大端的意思。大端就是将高位的字节放在低地址表示
-  String _decodeToUTF16BE(List<int> bytes) {
+  String _decodeWithUTF16BE(List<int> bytes) {
     _codecType = ByteCodecType.UTF16BE;
     
     final utf16bes = List.generate((bytes.length / 2).ceil(), (index) => 0);
@@ -75,7 +75,7 @@ class ByteCodec {
   }
 
   // LE 即 little-endian，小端的意思。小端就是将高位的字节放在高地址表示
-  String _decodeToUTF16LE(List<int> bytes) {
+  String _decodeWithUTF16LE(List<int> bytes) {
     _codecType = ByteCodecType.UTF16LE;
 
     final utf16les = List.generate((bytes.length / 2).ceil(), (index) => 0);
@@ -88,6 +88,18 @@ class ByteCodec {
       }
     }
     return String.fromCharCodes(utf16les);
+  }
+
+  List<int> _encodeWithUTF16(String string) {
+    return [];
+  }
+
+  List<int> _encodeWithUTF16BE(String string) {
+    return [];
+  }
+
+  List<int> _encodeWithUTF16LE(String string) {
+    return [];
   }
 
   SubBytes readBytesUtilTerminator(List<int> bytes, {List<int>? terminator}) {
@@ -134,7 +146,7 @@ class ByteCodec {
     if (decodeType == ByteCodecType.ISO_8859_1) {
       return transferToLength(latin1.encode(string), byteLength: limitByteLength);
     } else if (decodeType == ByteCodecType.UTF16) {
-
+      return _encodeWithUTF16(string);
     } else if (decodeType == ByteCodecType.UTF16BE) {
 
     } else if (decodeType == ByteCodecType.UTF8) {

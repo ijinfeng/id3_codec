@@ -128,7 +128,7 @@ class ID3MetataInfo {
       ret += "== $key ==\n";
       ret += tranferValue(value, key);
     }
-    ret += "=========> All data received <=======\n";
+    ret += "=========> All data received <=======";
     return ret;
   }
 }

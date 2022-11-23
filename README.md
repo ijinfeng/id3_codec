@@ -12,10 +12,9 @@ An ID3 tag information parsing library based on dart, which supports the operati
 - [x] v2.4
 
 
+## ID3 version that supports encoding
 
 NOW, START SUPPORTED ID3 **ENCODE**!🎉
-
-## ID3 version that supports encoding
 
 - [x] v1
 - [x] v1.1

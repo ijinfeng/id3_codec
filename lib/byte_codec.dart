@@ -5,6 +5,7 @@ import 'dart:convert';
 enum ByteCodecType {
   // Other
   Unknown,
+  // Can't encode/decode [中文]
   ISO_8859_1,
   UTF16,
   UTF16BE,
@@ -34,13 +35,13 @@ class ByteCodec {
   String decode(List<int> bytes, {ByteCodecType? forceType}) {
     final decodeType = forceType ?? codecType;
     if (decodeType == ByteCodecType.ISO_8859_1) {
-      return latin1.decode(bytes);
+      return latin1.decode(bytes, allowInvalid: true);
     } else if (decodeType == ByteCodecType.UTF16) {
       return _decodeToUTF16(bytes);
     } else if (decodeType == ByteCodecType.UTF16BE) {
       return _decodeToUTF16BE(bytes);
     } else if (decodeType == ByteCodecType.UTF8) {
-      return utf8.decode(bytes);
+      return utf8.decode(bytes, allowMalformed: true);
     } else {
       return '';
     }
@@ -125,6 +126,37 @@ class ByteCodec {
       return SubBytes(bytes: subBytes, terminator: _terminator);
     } else {
       return SubBytes.o(bytes);
+    }
+  }
+
+  List<int> encode(String string, {int? limitByteLength, ByteCodecType? forceType}) {
+    final decodeType = forceType ?? codecType;
+    if (decodeType == ByteCodecType.ISO_8859_1) {
+      return transferToLength(latin1.encode(string), byteLength: limitByteLength);
+    } else if (decodeType == ByteCodecType.UTF16) {
+
+    } else if (decodeType == ByteCodecType.UTF16BE) {
+
+    } else if (decodeType == ByteCodecType.UTF8) {
+      return transferToLength(utf8.encode(string), byteLength: limitByteLength);
+    } else {
+      return [];
+    }
+    return [];
+  }
+
+  /// Convert bytes to bytes of specified length
+  /// - bytes
+  /// - byteLength[Optional]
+  List<int> transferToLength(List<int> bytes, {int? byteLength}) {
+    if (byteLength == null) return bytes;
+    final List<int> ret = List.from(bytes);
+    if (bytes.length <= byteLength) {
+      ret.addAll(List.filled(byteLength - bytes.length, 0x00));
+      return ret;
+    } else {
+      ret.removeRange(byteLength, bytes.length);
+      return ret;
     }
   }
 }

@@ -99,7 +99,7 @@ class ID3MetataInfo {
   @override
   String toString() {
     String ret = '[ ID3MetaInfo ]\n';
-    ret += "[ Range: $range ]\n";
+    ret += "- Range: $range\n";
     String tranferValue(dynamic value, String key) {
       String ret = '';
       if (value is _ID3MetadataValue) {
@@ -128,7 +128,7 @@ class ID3MetataInfo {
       ret += "== $key ==\n";
       ret += tranferValue(value, key);
     }
-    ret += "=========> All data received <=======";
+    ret += "=========> All data received <=======\n";
     return ret;
   }
 }

@@ -50,7 +50,7 @@ class ID3V1 extends ID3Define {
   @override
   bool convert() {
     int start = bytes.length - ID3V1.inherentTotalLength;
-    if (readValue(fragments[0], start) != 'TAG') {
+    if (start < 0 || readValue(fragments[0], start) != 'TAG') {
       return false;
     }
     // Range
@@ -83,7 +83,7 @@ class ID3V1 extends ID3Define {
     start += 4;
 
     // Comment (30 or 28)
-    final hasReserve = bytes.sublist(start + 28, 1).first != 0x00;
+    final hasReserve = bytes.sublist(start + 28, start + 29).first != 0x00;
     if (hasReserve) {
       // ID3V1.1
       metadata.set(value: 'V1.1', key: "Version");
@@ -1008,6 +1008,7 @@ class ID3V2 extends ID3Define {
      ID3v2 size             4 * %0xxxxxxx
   */
   int _searchFooterReturnFixStart(int start) {
+    if (start < 0) return 0;
     // ID
     final idBytes = bytes.sublist(start, start + 3);
     final id = latin1.decode(idBytes);

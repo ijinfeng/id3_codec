@@ -2,7 +2,8 @@
 
 An ID3 tag information parsing library based on dart, which supports the operation of `Flutter` on all platforms.
 
-## Support ID3 version
+
+## ID3 version that supports decoding
 
 - [x] v1
 - [x] v1.1
@@ -10,7 +11,19 @@ An ID3 tag information parsing library based on dart, which supports the operati
 - [x] v2.3
 - [x] v2.4
 
-## How to use
+
+
+NOW, START SUPPORTED ID3 **ENCODE**!🎉
+
+## ID3 version that supports encoding
+
+- [x] v1
+- [x] v1.1
+- [ ] v2.2
+- [ ] v2.3
+- [ ] v2.4
+
+## Install
 
 Depend on it
 Run this command:
@@ -29,6 +42,7 @@ dependencies:
 
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more.
 
+## How to use
 
 * read by async.
 ```dart
@@ -47,3 +61,20 @@ final metadata = decoder.decodeSync();
 debugPrint(metadata.toString());
 ```
 
+* encode to v1 and v1.1
+```dart
+final data = await rootBundle.load("assets/song2.mp3");
+final bytes = data.buffer.asUint8List();
+final encoder = ID3Encoder(bytes);
+final resultBytes = encoder.encode(MetadataV1Body(
+                title: 'Ting wo shuo,xiexie ni',
+                artist: 'Wu ming',
+                album: 'Gan en you ni',
+                year: '2021',
+                comment: 'I am very happy!',
+                track: 1,
+                genre: 2
+               ));
+
+// you can read [resultBytes] by ID3Decoder or other ID3 tag pubs;
+```

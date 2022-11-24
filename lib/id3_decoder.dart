@@ -1,4 +1,4 @@
-import 'package:id3_codec/id3_define.dart';
+import 'package:id3_codec/id3_decoder_impl.dart';
 import 'package:id3_codec/id3_metainfo.dart';
 
 class ID3Decoder {
@@ -13,14 +13,14 @@ class ID3Decoder {
 
     final List<ID3MetataInfo> metadatas = [];
     // parse ID3v1
-    final id3v1 = ID3V1(_bytes);
+    final id3v1 = ID3V1Decoder(_bytes);
     final retv1 = id3v1.convert();
     if (retv1) {
       metadatas.add(id3v1.metadata);
     }
 
     // parse ID3v2
-    final id3v2 = ID3V2(retv1 ? _bytes.sublist(0, _bytes.length - id3v1.totalLength) : _bytes);
+    final id3v2 = ID3V2Decoder(retv1 ? _bytes.sublist(0, _bytes.length - id3v1.totalLength) : _bytes);
     final retv2 = id3v2.convert();
     if (retv2) {
       metadatas.add(id3v2.metadata);

@@ -5,11 +5,11 @@ import 'package:id3_codec/id3_constant.dart';
 import 'package:id3_codec/id3_metainfo.dart';
 
 /// Support ID3V1, V1.1, V2.2, V2.3, V2.4
-abstract class ID3Define {
+abstract class _ID3Decoder {
   String get version;
   List<int> bytes;
 
-  ID3Define(this.bytes);
+  _ID3Decoder(this.bytes);
 
   bool convert();
 
@@ -30,8 +30,8 @@ abstract class ID3Define {
   }
 }
 
-class ID3V1 extends ID3Define {
-  ID3V1(super.bytes);
+class ID3V1Decoder extends _ID3Decoder {
+  ID3V1Decoder(super.bytes);
 
   @override
   String get version => "V1";
@@ -49,7 +49,7 @@ class ID3V1 extends ID3Define {
 
   @override
   bool convert() {
-    int start = bytes.length - ID3V1.inherentTotalLength;
+    int start = bytes.length - ID3V1Decoder.inherentTotalLength;
     if (start < 0 || readValue(fragments[0], start) != 'TAG') {
       return false;
     }
@@ -116,7 +116,7 @@ class ID3V1 extends ID3Define {
   }
 
   @override
-  int get totalLength => ID3V1.inherentTotalLength;
+  int get totalLength => ID3V1Decoder.inherentTotalLength;
 
   static int get inherentTotalLength => 128;
 }
@@ -124,8 +124,8 @@ class ID3V1 extends ID3Define {
 /// https://id3.org/id3v2.4.0-structure
 /// https://id3.org/d3v2.3.0
 /// https://id3.org/id3v2-00
-class ID3V2 extends ID3Define {
-  ID3V2(super.bytes);
+class ID3V2Decoder extends _ID3Decoder {
+  ID3V2Decoder(super.bytes);
 
   String _major = 'x';
   String _revision = 'x';

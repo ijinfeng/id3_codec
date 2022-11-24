@@ -1,4 +1,4 @@
-import 'package:id3_codec/id3_encoder_iml.dart';
+import 'package:id3_codec/id3_encoder_impl.dart';
 
 class ID3Encoder {
   const ID3Encoder(List<int> bytes) : _bytes = bytes;

@@ -44,6 +44,30 @@ class MetadataV1Body extends EncodeMetadata {
   final int? track;
 }
 
-class MetadataV2_3Body extends EncodeMetadata {
-  
+abstract class EncodeMetadataV2Body extends EncodeMetadata {
+  const EncodeMetadataV2Body();
+}
+
+class MetadataV2_3Body extends EncodeMetadataV2Body {
+  const MetadataV2_3Body({
+    this.title,
+    this.artist,
+    this.album,
+    this.encoding,
+    this.imageBytes,
+    this.userDefines,
+  });
+
+  /// TIT2[Title/songname/content description]
+  final String? title;
+  /// TPE1[Lead performer(s)/Soloist(s)]
+  final String? artist;
+  /// TALB[Album/Movie/Show title]
+  final String? album;
+  /// APIC[Attached picture]
+  final List<int>? imageBytes;
+  /// TSSE[Software/Hardware and settings used for encoding]
+  final String? encoding;
+  /// TXXX[User defined text information frame]
+  final Map<String, String>? userDefines;
 }

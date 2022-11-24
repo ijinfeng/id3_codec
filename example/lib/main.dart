@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: const Text('三方库[id3] 解码')),
 
-  const Divider(),
+const Divider(),
 
             TextButton(
             onPressed: () async {
@@ -118,6 +118,19 @@ class _MyHomePageState extends State<MyHomePage> {
                ));
             },
             child: const Text('编码 ID3v2.3')),
+
+const Divider(),
+
+            TextButton(
+            onPressed: () {
+              final codec = ByteCodec(textEncodingByte: 0x01);
+              final bytes = codec.encode('我是移植小蜜蜂');
+              final hex = HexOutput(bytes);
+              debugPrint(hex.toString());
+              final ret = codec.decode(bytes);
+              debugPrint("ret==$ret");
+            },
+            child: const Text('codec 编码UTF16')),
           ],
         ),
       ),

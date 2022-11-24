@@ -1,4 +1,5 @@
 import 'package:id3_codec/byte_codec.dart';
+import 'package:id3_codec/content_encoder.dart';
 import 'package:id3_codec/id3_encoder.dart';
 
 abstract class _ID3Encoder {
@@ -98,7 +99,73 @@ class ID3V1Encoder extends _ID3Encoder {
 class ID3V2_3Encoder extends _ID3Encoder {
   ID3V2_3Encoder(super.bytes);
 
+  /// Record the starting position of size calculation,
+  /// and calculate the total size after all frames are filled
+  int _calSizeStart = 0;
+
   List<int> encode(MetadataV2_3Body data) {
-    return bytes;
+    int start = 0;
+    final codec = ByteCodec();
+    List<int> output = List.from(bytes);
+
+    final idBytes = output.sublist(start, start + 3);
+    if (codec.decode(idBytes) == 'ID3') {
+
+    } else {
+      List<int> insetBytes = [];
+      // Create Header
+      final header = List.filled(10, 0x00);
+      final id3TagBytes = codec.encode('ID3', limitByteLength: 3);
+      header.replaceRange(start, start + 3, id3TagBytes);
+      start += 3;
+
+      // version + revision
+      header.replaceRange(start, start + 1, [3]);
+      start += 2;
+
+      // Flags
+      final flagsByte = 0x00;
+      header.replaceRange(start, start + 1, [flagsByte]);
+      start += 1;
+
+      // Size
+      // The ID3v2 tag size is the size of the complete tag after
+      // unsychronisation, including padding, excluding the header but not
+      // excluding the extended header (total tag size - 10)
+      // 
+      // `size = extended header + frames + padding`
+      _calSizeStart = start;
+      start += 4;
+
+      // No Extended Header
+
+      // Frames
+      final contentEncoder = ContentEncoder(body: data);
+      final framesBytes = contentEncoder.encode();
+
+      // Padding
+      final padding = List.filled(100, 0x00);
+
+      // Calculate the size of size and store it in 4 bytes
+      final size = framesBytes.length + padding.length;
+      List<int> sizeBytes = List.filled(4, 0x00);
+      sizeBytes[0] = (size << 4) >>> 25;
+      sizeBytes[1] = (size << 11) >>> 25;
+      sizeBytes[2] = (size << 18) >>> 25;
+      sizeBytes[3] = (size << 25) >>> 25;
+      header.replaceRange(_calSizeStart, _calSizeStart + 4, sizeBytes);
+
+      // package  all bytes
+      insetBytes.addAll(
+        header
+      );
+      insetBytes.addAll(
+        framesBytes
+      );
+      insetBytes.addAll(padding);
+
+      output.insertAll(0, insetBytes);
+    }
+    return output;
   } 
 }

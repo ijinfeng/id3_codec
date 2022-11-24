@@ -514,7 +514,7 @@ class ID3V2 extends ID3Define {
        10   No more than 32 frames and 40 KB total tag size.
        11   No more than 32 frames and 4 KB total tag size.
       */
-      final p = (flagContent & 0xC0) >> 6;
+      final p = (flagContent & 0xC0) >>> 6;
       String key = "d - Tag restrictions[pp]";
       if (p == 0) {
         metadata.set(

@@ -14,6 +14,11 @@ enum ByteCodecType {
 }
 
 class ByteCodec {
+  /// textEncodingByte: codec type
+  /// - 0x00: ISO_8859_1
+  /// - 0x01: UTF16
+  /// - 0x02: UTF16BE
+  /// - 0x03: UTF8
   ByteCodec({int textEncodingByte = 0x00}) {
     if (textEncodingByte == 0x00) {
       _codecType = ByteCodecType.ISO_8859_1;
@@ -90,16 +95,34 @@ class ByteCodec {
     return String.fromCharCodes(utf16les);
   }
 
-  List<int> _encodeWithUTF16(String string) {
-    return [];
+  List<int> _encodeWithUTF16(String string, {String bom = 'BE'}) {
+    if (bom == 'BE') {
+      return _encodeWithUTF16BE(string);
+    } else {
+      return _encodeWithUTF16LE(string);
+    }
   }
 
   List<int> _encodeWithUTF16BE(String string) {
-    return [];
+    List<int> output = [0xFE, 0xFF];
+    final utf16Bytes = string.codeUnits;
+    for (int i = 0; i < utf16Bytes.length; i++) {
+      final utf16Byte = utf16Bytes[i];
+      output.add((utf16Byte & 0xFF00) >>> 8);
+      output.add((utf16Byte & 0xFF));
+    }
+    return output;
   }
 
   List<int> _encodeWithUTF16LE(String string) {
-    return [];
+    List<int> output = [0xFF, 0xFE];
+    final utf16Bytes = string.codeUnits;
+    for (int i = 0; i < utf16Bytes.length; i++) {
+      final utf16Byte = utf16Bytes[i];
+      output.add((utf16Byte & 0xFF));
+      output.add((utf16Byte & 0xFF00) >>> 8);
+    }
+    return output;
   }
 
   SubBytes readBytesUtilTerminator(List<int> bytes, {List<int>? terminator}) {
@@ -146,15 +169,24 @@ class ByteCodec {
     if (decodeType == ByteCodecType.ISO_8859_1) {
       return transferToLength(latin1.encode(string), byteLength: limitByteLength);
     } else if (decodeType == ByteCodecType.UTF16) {
-      return _encodeWithUTF16(string);
+      final bytes = _encodeWithUTF16(string);
+      if (limitByteLength != null) {
+        return transferToLength(bytes, byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
+      } else {
+        return bytes;
+      }
     } else if (decodeType == ByteCodecType.UTF16BE) {
-
+      final bytes = _encodeWithUTF16BE(string);
+      if (limitByteLength != null) {
+        return transferToLength(bytes, byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
+      } else {
+        return bytes;
+      }
     } else if (decodeType == ByteCodecType.UTF8) {
       return transferToLength(utf8.encode(string), byteLength: limitByteLength);
     } else {
       return [];
     }
-    return [];
   }
 
   /// Convert bytes to bytes of specified length
@@ -185,4 +217,32 @@ class SubBytes {
   final List<int> terminator;
 
   int get length => bytes.length + terminator.length;
+}
+
+/// convert to hex
+class HexOutput {
+  const HexOutput(this.bytes);
+
+  final List<int> bytes;
+
+  String get _prfix => "0x";
+  String get _slice => ', ';
+
+  String toHex() {
+    String output = '';
+    for (int byte in bytes) {
+      String hex = byte.toRadixString(16).toUpperCase();
+      hex = "$_prfix$hex";
+      if (output.isNotEmpty) {
+        output += _slice;
+      } 
+      output += hex;
+    }
+    return output;
+  }
+
+  @override
+  String toString() {
+    return toHex();
+  }
 }

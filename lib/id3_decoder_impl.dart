@@ -34,7 +34,7 @@ class ID3V1Decoder extends _ID3Decoder {
   ID3V1Decoder(super.bytes);
 
   @override
-  String get version => "V1";
+  String get version => "v1";
 
   /// total 128 bytes
   List<ID3Fragment> get fragments => [
@@ -1038,7 +1038,7 @@ class ID3V2Decoder extends _ID3Decoder {
   }
 
   @override
-  String get version => "V2.$_major.$_revision";
+  String get version => "v2.$_major.$_revision";
 
   @override
   int get totalLength => 10 + _size + (_hasFooter ? 10 : 0);

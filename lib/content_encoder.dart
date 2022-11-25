@@ -11,6 +11,7 @@ class ContentEncoder {
 
   /// encode `EncodeMetadataV2Body` to bytes
   List<int> encode() {
+    assert(body != null);
     List<int> output = [];
     if (body is MetadataV2_3Body) {
       final v2_3Body = body as MetadataV2_3Body;

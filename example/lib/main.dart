@@ -43,11 +43,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    rootBundle.load("assets/song2.mp3").then((value) {
+    // assets/song1.mp3 ID3v2.3
+    // assets/song2.mp3 
+    rootBundle.load("assets/song1.mp3").then((value) {
       bytes = value.buffer.asUint8List();
     });
     // bytes = [0x11, 0x22, 0x33];
-    debugPrint({"hah":12}.toString());
   }
 
   @override
@@ -102,19 +103,15 @@ const Divider(),
             },
             child: const Text('编码 ID3v1')),
 
+
             TextButton(
             onPressed: () async {
               
               final encoder = ID3Encoder(bytes);
               // ignore: prefer_const_constructors
-              bytes = encoder.encode(MetadataV1Body(
-                title: 'Ting wo shuo,xiexie ni',
-                artist: 'Wu ming',
-                album: 'Gan en you ni',
-                year: '2021',
-                comment: 'I am very happy!',
-                track: 1,
-                genre: 2
+              bytes = encoder.encode(MetadataV2_3Body(
+                title: 'T听我说谢谢你！',
+                artist: '大帅比',
                ));
             },
             child: const Text('编码 ID3v2.3')),

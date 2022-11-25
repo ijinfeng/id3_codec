@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:id3_codec/byte_codec.dart';
 import 'package:id3_codec/content_decoder.dart';
 import 'package:id3_codec/id3_constant.dart';
@@ -172,7 +173,11 @@ class ID3V2Decoder extends _ID3Decoder {
   /// All frame sizes
   int _totalFrameSize = 0;
 
-  /// The Extended Header Size field holds the Size of the Extended Header, excluding the 4 bytes of the Extended Header Size field itself
+  /// The Extended Header Size field holds the Size of the Extended Header,
+  ///  including the 4 bytes of the Extended Header Size field itself.
+  /// This is different in v2.3 and v2.4.
+  /// 
+  /// But here `_extendedSize` represents the whole extended header.
   int _extendedSize = 0;
 
   int _paddingSize = 0;
@@ -384,6 +389,10 @@ class ID3V2Decoder extends _ID3Decoder {
         (extendedSizeBytes[2] << 8) +
         (extendedSizeBytes[1] << 16) +
         (extendedSizeBytes[0] << 24);
+    // Where the 'Extended header size', currently 6 or 10 bytes, excludes
+    // itself. 
+    // So me need to add 4 bytes.
+    _extendedSize += 4;
     metadata.set(value: _extendedSize, key: extendedV2_3Header[0].name);
 
     // Extended Flags
@@ -700,7 +709,8 @@ class ID3V2Decoder extends _ID3Decoder {
   }
 
   int _parseV2_3Frames(int start) {
-    int frameSizes = _size;
+    // This frameSizes means `frame + padding`
+    int frameSizes = _size - _extendedSize;
     while (frameSizes > 0) {
       // Frame ID
       final frameID = readValue(frameV2_3[0], start);
@@ -752,8 +762,21 @@ class ID3V2Decoder extends _ID3Decoder {
           desc: '%abc00000 %ijk00000');
 
       // Content
-      final contentBytes = bytes.sublist(start, start + frameSize);
+      bool compression = i != 0x00;
+      if (compression) {
+        // Frame is compressed using zlib [zlib] with 4 bytes for
+        // 'decompressed size' appended to the frame header.
+        //
+        // So me need jump 4 bytes `decompressed size`
+        start += 4;
+        frameSize -= 4;
+      }
+      List<int> contentBytes = bytes.sublist(start, start + frameSize);
       start += frameSize;
+      if (compression) {
+        // Compression by `zlib`
+        contentBytes = zlib.decode(contentBytes);
+      }
       final decoder = ContentDecoder(frameID: frameID, bytes: contentBytes);
       final content = decoder.decode();
       metadata.set(value: content, key: 'Content');
@@ -771,7 +794,7 @@ class ID3V2Decoder extends _ID3Decoder {
   }
 
   int _parseV2_4Frames(int start) {
-    int frameSizes = _size;
+    int frameSizes = _size - _extendedSize;
     while (frameSizes > 0) {
       // Frame ID
       final frameID = readValue(frameV2_4[0], start);

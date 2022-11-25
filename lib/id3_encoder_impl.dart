@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:id3_codec/byte_codec.dart';
+import 'package:id3_codec/content_editor.dart';
 import 'package:id3_codec/content_encoder.dart';
 import 'package:id3_codec/id3_encoder.dart';
 
@@ -107,9 +109,12 @@ class ID3V2_3Encoder extends _ID3Encoder {
   /// Record the starting position of size calculation,
   /// and calculate the total size after all frames are filled
   int _calSizeStart = 0;
-  
+
   /// The ID3v2 tag size, excluding the header
   int _size = 0;
+
+  /// The whole extended header size
+  int _extendedSize = 0;
 
   List<int> encode(MetadataV2_3Body data) {
     int start = 0;
@@ -125,61 +130,124 @@ class ID3V2_3Encoder extends _ID3Encoder {
   }
 
   void _decodeDeep(int start, MetadataV2_3Body data) {
-      // version
-      final major = _output.sublist(start, start + 1).first;
-      start += 2;
+    // version
+    final major = _output.sublist(start, start + 1).first;
+    start += 2;
 
-      // flags - %abc00000
-      final flags = _output.sublist(start, start + 1).first;
-      start += 1;
-      // We only need to pay attention to whether there is an Extended Header
-      if ((flags & 0x40) != 0) {
-        // Exist `extended header`
+    // flags - %abc00000
+    final flags = _output.sublist(start, start + 1).first;
+    start += 1;
+    // We only need to pay attention to whether there is an Extended Header
+    final hasExtendedHeader = (flags & 0x40) != 0;
+
+    // size - 4 * %0xxxxxxx
+    List<int> sizeBytes = _output.sublist(start, start + 4);
+    _calSizeStart = start;
+    start += 4;
+
+    // The ID3v2 tag size is the size of the complete tag after
+    // unsychronisation, including padding, excluding the header but not
+    // excluding the extended header (total tag size - 10).
+    final size = (sizeBytes[3] & 0x7F) +
+        ((sizeBytes[2] & 0x7F) << 7) +
+        ((sizeBytes[1] & 0x7F) << 14) +
+        ((sizeBytes[0] & 0x7F) << 21);
+    _size = size;
+
+    // If it is not v2.3 version, tag data will be erased
+    if (major != 3) {
+      // Frames
+      final contentEncoder = ContentEncoder(body: data);
+      final framesBytes = contentEncoder.encode();
+      if (framesBytes.length <= size) {
+        final filledLength = size - framesBytes.length;
+        final insertBytes = framesBytes + List.filled(filledLength, 0x00);
+        _output.replaceRange(start, start + insertBytes.length, insertBytes);
+      } else {
+        // The `size` was become larger
+        final insertBytes = framesBytes + _defaultPadding;
+        final moveLength = insertBytes.length - size;
+        _output.insertAll(start + size, List.filled(moveLength, 0x00));
+        _output.replaceRange(start, start + insertBytes.length, insertBytes);
+
+        // new size
+        _size = insertBytes.length;
+
+        List<int> sizeBytes = List.filled(4, 0x00);
+        sizeBytes[0] = (_size << 4) >>> 25;
+        sizeBytes[1] = (_size << 11) >>> 25;
+        sizeBytes[2] = (_size << 18) >>> 25;
+        sizeBytes[3] = (_size << 25) >>> 25;
+        _output.replaceRange(_calSizeStart, _calSizeStart + 4, sizeBytes);
+      }
+    } else {
+      // Extended Header
+      if (hasExtendedHeader) {
+        final extSizeBytes = _output.sublist(start, start + 4);
+        start += 4;
+        final extSize = extSizeBytes[3] +
+            (extSizeBytes[2] << 8) +
+            (extSizeBytes[1] << 16) +
+            (extSizeBytes[0] << 24);
+        start += extSize;
+        _extendedSize = extSize + 4;
       }
 
-      // size - 4 * %0xxxxxxx
-      List<int> sizeBytes = _output.sublist(start, start + 4);
-      _calSizeStart = start;
+      // Frames
+      _decodeFrames(start, data);
+    }
+  }
+
+  void _decodeFrames(int start, MetadataV2_3Body data) {
+    // remaining size = frames + padding
+    int remainingSize = _size - _extendedSize;
+    final editor = ContentEditor(bytes: _output);
+
+    while (remainingSize > 0) {
+      final frameID = latin1.decode(_output.sublist(start, start + 4));
+      if (frameID == latin1.decode([0, 0, 0, 0])) {
+        break;
+      }
       start += 4;
 
-      // The ID3v2 tag size is the size of the complete tag after
-      // unsychronisation, including padding, excluding the header but not
-      // excluding the extended header (total tag size - 10).
-      final size = (sizeBytes[3] & 0x7F) +
-          ((sizeBytes[2] & 0x7F) << 7) +
-          ((sizeBytes[1] & 0x7F) << 14) +
-          ((sizeBytes[0] & 0x7F) << 21);
-      _size = size;
+      // frame size
+      final frameSizeBytes = _output.sublist(start, start + 4);
+      start += 4;
+      int frameSize = frameSizeBytes[3] +
+          (frameSizeBytes[2] << 8) +
+          (frameSizeBytes[1] << 16) +
+          (frameSizeBytes[0] << 24);
 
-      // If it is not v2.3 version, tag data will be erased
-      if (major != 3) {
-        // Frames
-        final contentEncoder = ContentEncoder(body: data);
-        final framesBytes = contentEncoder.encode();
-        if (framesBytes.length <= size) {
-          final filledLength = size - framesBytes.length;
-          final insertBytes = framesBytes + List.filled(filledLength, 0x00);
-          _output.replaceRange(start, start + insertBytes.length, insertBytes);
+      // Flags - %abc00000 %ijk00000
+      final flags = _output.sublist(start, start + 2);
+      start += 2;
+
+      // c - Read only
+      bool readOnly = (flags[0] & 0x20) != 0;
+
+      // i - Compression
+      bool compression = (flags[1] & 0x80) != 0;
+
+      if (!readOnly) {
+        final editResult = editor.editFrameWithData(
+            start: start,
+            frameID: frameID,
+            frameSize: frameSize,
+            compression: compression,
+            data: data);
+        // Can't edit this frame
+        if (editResult.modify) {
+          start = editResult.start;
+          frameSize = editResult.frameSize;
         } else {
-          // The `size` was become larger
-          final insertBytes = framesBytes + _defaultPadding;
-          final moveLength = insertBytes.length - size;
-          _output.insertAll(start + size, List.filled(moveLength, 0x00));
-          _output.replaceRange(start, start + insertBytes.length, insertBytes);
-          
-          // new size
-          _size = insertBytes.length;
-
-          List<int> sizeBytes = List.filled(4, 0x00);
-          sizeBytes[0] = (_size << 4) >>> 25;
-          sizeBytes[1] = (_size << 11) >>> 25;
-          sizeBytes[2] = (_size << 18) >>> 25;
-          sizeBytes[3] = (_size << 25) >>> 25;
-          _output.replaceRange(_calSizeStart, _calSizeStart + 4, sizeBytes);
+          start += frameSize;
         }
       } else {
-        // TODO: edit
+        start += frameSize;
       }
+
+      remainingSize -= frameSize;
+    }
   }
 
   List<int> _createNewID3Body(MetadataV2_3Body data) {

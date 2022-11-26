@@ -42,7 +42,7 @@ class ContentEncoder {
           );
         }
       }
-      if (v2_3Body.imageBytes != null) {
+      if (v2_3Body.imageBytes != null && ImageCodec.getImageMimeType(v2_3Body.imageBytes!).isNotEmpty) {
         output.addAll(
           encodeProperty(frameID: 'APIC', content: v2_3Body.imageBytes)
         );
@@ -96,10 +96,6 @@ class _TextInfomationEncoder extends _ContentEncoder {
     const defaultTextEncoding = 0x01;
     final codec = ByteCodec(textEncodingByte: defaultTextEncoding);
 
-    // frame id
-    final frameIDBytes = codec.encode(frameID, forceType: ByteCodecType.ISO_8859_1);
-    output.addAll(frameIDBytes);
-
     // text encoding
     output.add(defaultTextEncoding);
 
@@ -129,10 +125,6 @@ class _TXXXEncoder extends _ContentEncoder {
     // set text encoding 'UTF16'
     const defaultTextEncoding = 0x01;
     final codec = ByteCodec(textEncodingByte: defaultTextEncoding);
-
-    // frame id
-    final frameIDBytes = codec.encode(frameID, forceType: ByteCodecType.ISO_8859_1);
-    output.addAll(frameIDBytes);
 
     // text encoding
     output.add(defaultTextEncoding);
@@ -166,19 +158,16 @@ class _APICEncoder extends _ContentEncoder {
   List<int> encode(content) {
     List<int> output = [];
 
-    // set text encoding 'UTF16'
-    const defaultTextEncoding = 0x01;
+    // set text encoding 'ISO_8859_1'
+    const defaultTextEncoding = 0x00;
     final codec = ByteCodec(textEncodingByte: defaultTextEncoding);
-
-    // frame id
-    final frameIDBytes = codec.encode(frameID, forceType: ByteCodecType.ISO_8859_1);
-    output.addAll(frameIDBytes);
 
     // text encoding
     output.add(defaultTextEncoding);
 
     // MIME type
-    final mimeBytes = codec.encode('string');
+    String mimeType = ImageCodec.getImageMimeType(content);
+    final mimeBytes = codec.encode(mimeType, forceType: ByteCodecType.ISO_8859_1);
     output.addAll(mimeBytes);
     output.add(0x00);
 
@@ -187,12 +176,15 @@ class _APICEncoder extends _ContentEncoder {
     output.add(pictypeBytes);
 
     // Description
-    output.addAll([0x00, 0x00]);
+    if (defaultTextEncoding == 0x01 || defaultTextEncoding == 0x02) {
+      output.addAll([0x00, 0x00]);
+    } else {
+      output.addAll([0x00]);
+    }
 
     // Picture data
     output.addAll(content);
 
     return output;
   }
-
 }

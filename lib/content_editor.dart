@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:id3_codec/byte_codec.dart';
 import 'package:id3_codec/content_encoder.dart';
 import 'package:id3_codec/id3_encoder.dart';
 
@@ -32,7 +34,7 @@ class ContentEditor {
       return _editFrameWithProperty(start, frameID, frameSize, compression, data.album);
     } else if (frameID == 'TSSE' && data.encoding != null) {
       return _editFrameWithProperty(start, frameID, frameSize, compression, data.encoding);
-    } else if (frameID == 'APIC' && data.imageBytes != null) {
+    } else if (frameID == 'APIC' && data.imageBytes != null && ImageCodec.getImageMimeType(data.imageBytes!).isNotEmpty) {
       return _editFrameWithProperty(start, frameID, frameSize, compression, data.imageBytes);
     }
     return EditorResult.noEdit(frameID: frameID, start: start, frameSize: frameSize);
@@ -42,6 +44,7 @@ class ContentEditor {
     final contentEncoder = ContentEncoder();
     List<int> contentBytes =
         contentEncoder.encodeProperty(frameID: frameID, content: content);
+  debugPrint("-->frameID: $frameID, length: ${contentBytes.length}, frameSize: $frameSize");
     if (compression) {
       // store 'decompressed size' in 4 bytes
       List<int> decompressedSizeBytes = List.filled(4, 0x00);
@@ -69,10 +72,10 @@ class ContentEditor {
     // recalculate content size
     List<int> sizeBytes = List.filled(4, 0x00);
     frameSize = contentBytes.length;
-    sizeBytes[0] = (frameSize << 4) >>> 25;
-    sizeBytes[1] = (frameSize << 11) >>> 25;
-    sizeBytes[2] = (frameSize << 18) >>> 25;
-    sizeBytes[3] = (frameSize << 25) >>> 25;
+    sizeBytes[0] = frameSize >>> 24;
+    sizeBytes[1] = (frameSize << 8) >>> 24;
+    sizeBytes[2] = (frameSize << 16) >>> 24;
+    sizeBytes[3] = (frameSize << 24) >>> 24;
     // 6 = size(4 bytes) + flags(2 bytes)
     int frameSizeStart = start - 6;
     bytes.replaceRange(frameSizeStart, frameSizeStart + 4, sizeBytes);

@@ -5,7 +5,7 @@ class ID3Encoder {
 
   final List<int> _bytes;
 
-  List<int> encode(EncodeMetadata data) {
+  List<int> encodeSync(EncodeMetadata data) {
     if (data is MetadataV1Body) {
       final encoder = ID3V1Encoder(_bytes);
       return encoder.encode(data);
@@ -65,6 +65,7 @@ class MetadataV2_3Body extends EncodeMetadataV2Body {
   /// TALB[Album/Movie/Show title]
   final String? album;
   /// APIC[Attached picture]
+  /// Support PNG, JPEG, TIFF, GIF, BMP
   final List<int>? imageBytes;
   /// TSSE[Software/Hardware and settings used for encoding]
   final String? encoding;

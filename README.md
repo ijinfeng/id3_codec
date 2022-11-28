@@ -2,6 +2,14 @@
 
 An ID3 tag information parsing library based on dart, which supports the operation of `Flutter` on all platforms.
 
+![v1](https://img.shields.io/badge/ID3-v1-green)
+![v1.1](https://img.shields.io/badge/ID3-v1.1-green)
+![v2.2](https://img.shields.io/badge/ID3-v2.2-green)
+![v2.3](https://img.shields.io/badge/ID3-v2.3-green)
+![v2.4](https://img.shields.io/badge/ID3-v2.4-green)
+
+![decode](https://img.shields.io/badge/ID3-decode-red)
+![encode](https://img.shields.io/badge/ID3-encode-yellow)
 
 ## ID3 version that supports decoding
 
@@ -19,7 +27,7 @@ NOW, START SUPPORTED ID3 **ENCODE**!🎉
 - [x] v1
 - [x] v1.1
 - [ ] v2.2
-- [ ] v2.3
+- [x] v2.3
 - [ ] v2.4
 
 ## Install
@@ -36,12 +44,18 @@ This will add a line like this to your package's pubspec.yaml (and run an implic
 
 ```dart
 dependencies:
-  id3_codec: ^0.0.1
+  id3_codec: ^0.0.3
 ```
 
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more.
 
 ## How to use
+
+### Decode
+
+You can read all ID3 tag information from a given byte sequence. And display with `ID3MetataInfo` or a Map.
+
+Of course, you can also refer to the [example](https://github.com/ijinfeng/id3_codec/tree/main/example) I provided to familiarize yourself with the detailed usage.
 
 * read by async.
 ```dart
@@ -60,6 +74,10 @@ final metadata = decoder.decodeSync();
 debugPrint(metadata.toString());
 ```
 
+### Encode
+
+You can edit existing id3 tags, or add new tag information into it.
+
 * encode to v1 and v1.1
 ```dart
 final data = await rootBundle.load("assets/song2.mp3");
@@ -76,4 +94,28 @@ final resultBytes = encoder.encode(MetadataV1Body(
                ));
 
 // you can read [resultBytes] by ID3Decoder or other ID3 tag pubs;
+```
+* encode to v2.3
+
+```dart
+final data = await rootBundle.load("assets/song1.mp3");
+final bytes = data.buffer.asUint8List();
+
+final header = await rootBundle.load("assets/wx_header.png");
+final headerBytes = header.buffer.asUint8List();
+
+final encoder = ID3Encoder(bytes);
+// ignore: prefer_const_constructors
+final resultBytes = encoder.encodeSync(MetadataV2_3Body(
+    title: '听我说谢谢你！',
+    imageBytes: headerBytes,
+    artist: '歌手ijinfeng',
+    userDefines: {
+      "时长": '2:48',
+      "userId": "ijinfeng"
+    },
+    album: 'ijinfeng的专辑',
+    )); 
+
+// you can read [resultBytes] by `ID3Decoder` or other ID3 tag pubs;
 ```

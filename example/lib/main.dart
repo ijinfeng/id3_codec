@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:id3/id3.dart';
 import 'package:id3_codec/id3_decoder.dart';
 import 'package:id3_codec/id3_encoder.dart';
+import 'package:id3_codec/encode_metadata.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
@@ -36,15 +37,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
   List<int> bytes = [];
 
   @override
   void initState() {
     super.initState();
     // assets/song1.mp3 ID3v2.3
-    // assets/song2.mp3 
+    // assets/song2.mp3
     rootBundle.load("assets/song1.mp3").then((value) {
       bytes = value.buffer.asUint8List();
     });
@@ -62,97 +61,73 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             TextButton(
-            onPressed: () async {
-              // final data = await rootBundle.load("assets/song1.mp3");
-              // final bytes = data.buffer.asUint8List();
-              final decoder = ID3Decoder(bytes);
-              decoder.decodeAsync().then((metadatas) {
-                for (var metadata in metadatas) {
-                  debugPrint(metadata.toString()); 
-                }
-              });
-            },
-            child: const Text('[id3_codec] 解码')),
-
+                onPressed: () async {
+                  // final data = await rootBundle.load("assets/song1.mp3");
+                  // final bytes = data.buffer.asUint8List();
+                  final decoder = ID3Decoder(bytes);
+                  decoder.decodeAsync().then((metadatas) {
+                    for (var metadata in metadatas) {
+                      debugPrint(metadata.toString());
+                    }
+                  });
+                },
+                child: const Text('[id3_codec] 解码')),
             TextButton(
-            onPressed: () async {
-              final instance = MP3Instance(bytes);
-              final ret = instance.parseTagsSync();
-              if (ret) {
-                debugPrint(instance.getMetaTags().toString());
-              }
-            },
-            child: const Text('三方库[id3] 解码')),
-
-const Divider(),
-
+                onPressed: () async {
+                  final instance = MP3Instance(bytes);
+                  final ret = instance.parseTagsSync();
+                  if (ret) {
+                    debugPrint(instance.getMetaTags().toString());
+                  }
+                },
+                child: const Text('三方库[id3] 解码')),
+            const Divider(),
             TextButton(
-            onPressed: () async {
-              
-              final encoder = ID3Encoder(bytes);
-              // ignore: prefer_const_constructors
-              bytes = encoder.encodeSync(MetadataV1Body(
-                title: 'Ting wo shuo,xiexie ni',
-                artist: 'Wu ming',
-                album: 'Gan en you ni',
-                year: '2021',
-                comment: 'I am very happy!',
-                track: 1,
-                genre: 2
-               ));
-            },
-            child: const Text('编码 ID3v1')),
-
-
+                onPressed: () async {
+                  final encoder = ID3Encoder(bytes);
+                  // ignore: prefer_const_constructors
+                  bytes = encoder.encodeSync(MetadataV1Body(
+                      title: 'Ting wo shuo,xiexie ni',
+                      artist: 'Wu ming',
+                      album: 'Gan en you ni',
+                      year: '2021',
+                      comment: 'I am very happy!',
+                      track: 1,
+                      genre: 2));
+                },
+                child: const Text('编码 ID3v1')),
             TextButton(
-            onPressed: () async {
-              
-              final header = await rootBundle.load("assets/wx_header.png");
-              final headerBytes = header.buffer.asUint8List();
+                onPressed: () async {
+                  final header = await rootBundle.load("assets/wx_header.png");
+                  final headerBytes = header.buffer.asUint8List();
 
-              final encoder = ID3Encoder(bytes);
-              // ignore: prefer_const_constructors
-              bytes = encoder.encodeSync(MetadataV2_3Body(
-                title: 'T听我说谢谢你！',
-                // artist: '大帅比!',
-                // album: 'ijinfeng出产的专辑',
-                imageBytes: headerBytes
-               ));
-               debugPrint("---编码成功");
-            },
-            child: const Text('编码 ID3v2.3')),
-
-const Divider(),
-
+                  final encoder = ID3Encoder(bytes);
+                  // ignore: prefer_const_constructors
+                  bytes = encoder.encodeSync(MetadataV2_3Body(
+                      // title: 'T听我说谢谢你！',
+                      // artist: '大帅比!',
+                      userDefines: {
+                        "时长": '2:48',
+                        "userId": "ijinfeng"
+                      },
+                      // album: 'ijinfeng出产的专辑',
+                      imageBytes: headerBytes));
+                  debugPrint("---编码成功");
+                },
+                child: const Text('编码 ID3v2.3')),
+            const Divider(),
             TextButton(
-            onPressed: () async {
-              final downloadDir = await getDownloadsDirectory();
-              var file = File('${downloadDir?.path}/rewrite_song.mp3');
-              final exist = await file.exists();
-              if (!exist) {
-                await file.create(recursive: true);
-              }
-              await file.writeAsBytes(bytes);
-              debugPrint("写入文件成功: ${file.path}");
-            },
-            child: const Text('写入文件')),
-
-            TextButton(onPressed: () {
-              // 420036;
-  // [0, 6, 104, 196]
-          int size = 420036;
-             List<int> sizeBytes = List.filled(4, 0x00);
-             sizeBytes[3] = ((size << 24) >>> 24);
-  sizeBytes[2] = (((size << 16) - sizeBytes[3]) >>> 24);
-  sizeBytes[1] = (((size << 8) - sizeBytes[2]) >>> 24);
-    sizeBytes[0] = ((size - sizeBytes[1]) >>> 24);
-    
-    debugPrint(sizeBytes.toString());
-
-
-
-
-            }, child: const Text('转吗')) 
+                onPressed: () async {
+                  final downloadDir = await getDownloadsDirectory();
+                  var file = File('${downloadDir?.path}/rewrite_song.mp3');
+                  final exist = await file.exists();
+                  if (!exist) {
+                    await file.create(recursive: true);
+                  }
+                  await file.writeAsBytes(bytes);
+                  debugPrint("写入文件成功: ${file.path}");
+                },
+                child: const Text('写入文件')),
           ],
         ),
       ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:id3_codec/byte_codec.dart';
+import 'package:id3_codec/byte_util.dart';
 import 'package:id3_codec/content_decoder.dart';
 import 'package:id3_codec/id3_constant.dart';
 import 'package:id3_codec/id3_metainfo.dart';
@@ -371,10 +372,7 @@ class ID3V2Decoder extends _ID3Decoder {
    footer is present this equals to ('total size' - 20) bytes, otherwise
    ('total size' - 10) bytes.
     */
-    int size = (sizeBytes[3] & 0x7F) +
-        ((sizeBytes[2] & 0x7F) << 7) +
-        ((sizeBytes[1] & 0x7F) << 14) +
-        ((sizeBytes[0] & 0x7F) << 21);
+    int size = ByteUtil.calH0Size(sizeBytes);
     _size = size;
     metadata.set(value: "$size", key: header[4].name);
     metadata.leaveContainer();
@@ -385,10 +383,7 @@ class ID3V2Decoder extends _ID3Decoder {
     // Extended Header Size
     final extendedSizeBytes = readValue(extendedV2_3Header[0], start);
     start += extendedV2_3Header[0].length;
-    _extendedSize = extendedSizeBytes[3] +
-        (extendedSizeBytes[2] << 8) +
-        (extendedSizeBytes[1] << 16) +
-        (extendedSizeBytes[0] << 24);
+    _extendedSize = ByteUtil.calH1Size(extendedSizeBytes);
     // Where the 'Extended header size', currently 6 or 10 bytes, excludes
     // itself. 
     // So me need to add 4 bytes.
@@ -404,10 +399,7 @@ class ID3V2Decoder extends _ID3Decoder {
     // Size of Padding
     final paddingBytes = readValue(extendedV2_3Header[2], start);
     start += extendedV2_3Header[2].length;
-    _paddingSize = paddingBytes[3] +
-        (paddingBytes[2] << 8) +
-        (paddingBytes[1] << 16) +
-        (paddingBytes[0] << 24);
+    _paddingSize = ByteUtil.calH1Size(paddingBytes);
     metadata.set(value: _paddingSize, key: extendedV2_3Header[2].name);
 
     // Total Frame CRC
@@ -427,10 +419,7 @@ class ID3V2Decoder extends _ID3Decoder {
     // header, stored as a 32 bit synchsafe integer.
     final extendedSizeBytes = readValue(extendedV2_4Header[0], start);
     start += extendedV2_4Header[0].length;
-    _extendedSize = (extendedSizeBytes[3] & 0x7F) +
-        ((extendedSizeBytes[2] & 0x7F) << 7) +
-        ((extendedSizeBytes[1] & 0x7F) << 14) +
-        ((extendedSizeBytes[0] & 0x7F) << 21);
+    _extendedSize = ByteUtil.calH0Size(extendedSizeBytes);
     metadata.set(value: _extendedSize, key: extendedV2_4Header[0].name);
 
     // Number of flag bytes       $01
@@ -727,10 +716,7 @@ class ID3V2Decoder extends _ID3Decoder {
       // Frame Size
       final frameSizeBytes = readValue(frameV2_3[1], start);
       start += frameV2_3[1].length;
-      int frameSize = frameSizeBytes[3] +
-          (frameSizeBytes[2] << 8) +
-          (frameSizeBytes[1] << 16) +
-          (frameSizeBytes[0] << 24);
+      int frameSize = ByteUtil.calH1Size(frameSizeBytes);
       metadata.set(value: frameSize, key: frameV2_3[1].name);
 
       // Frame Flags
@@ -811,10 +797,7 @@ class ID3V2Decoder extends _ID3Decoder {
       // Frame Size
       final frameSizeBytes = readValue(frameV2_4[1], start);
       start += frameV2_4[1].length;
-      int frameSize = (frameSizeBytes[3] & 0x7F) +
-          ((frameSizeBytes[2] & 0x7F) << 7) +
-          ((frameSizeBytes[1] & 0x7F) << 14) +
-          ((frameSizeBytes[0] & 0x7F) << 21);
+      int frameSize = ByteUtil.calH0Size(frameSizeBytes);
       metadata.set(value: frameSize, key: frameV2_4[1].name);
 
       // Frame Flags
@@ -1046,10 +1029,7 @@ class ID3V2Decoder extends _ID3Decoder {
     // size
     final sizeBytes = bytes.sublist(start, start + 4);
     start += 4;
-    int size = (sizeBytes[3] & 0x7F) +
-        ((sizeBytes[2] & 0x7F) << 7) +
-        ((sizeBytes[1] & 0x7F) << 14) +
-        ((sizeBytes[0] & 0x7F) << 21);
+    int size = ByteUtil.calH0Size(sizeBytes);
 
     // fix start
     start -= (10 /*footer size*/

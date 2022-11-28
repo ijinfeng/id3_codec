@@ -1,5 +1,6 @@
 import 'package:id3_codec/byte_codec.dart';
-import 'package:id3_codec/id3_encoder.dart';
+import 'package:id3_codec/encode_metadata.dart';
+import 'package:id3_codec/image_type.dart';
 
 // https://id3.org/d3v2.3.0
 class ContentEncoder {
@@ -7,44 +8,44 @@ class ContentEncoder {
     this.body
   });
 
-  final EncodeMetadataV2Body? body;
+  final MetadataEditableWrapper? body;
 
-  /// encode `EncodeMetadataV2Body` to bytes
+  /// encode `MetadataV2Body` to bytes
   List<int> encode() {
     assert(body != null);
     List<int> output = [];
-    if (body is MetadataV2_3Body) {
-      final v2_3Body = body as MetadataV2_3Body;
-      if (v2_3Body.title != null) {
+    if (body is MetadataV2_3Wrapper) {
+      final v2_3Body = body as MetadataV2_3Wrapper;
+      if (v2_3Body.title.value != null) {
         output.addAll(
-          encodeProperty(frameID: 'TIT2', content: v2_3Body.title)
+          encodeProperty(frameID: 'TIT2', property: v2_3Body.title)
         );
       }
-      if (v2_3Body.artist != null) {
+      if (v2_3Body.artist.value != null) {
         output.addAll(
-          encodeProperty(frameID: 'TPE1', content: v2_3Body.artist)
+          encodeProperty(frameID: 'TPE1', property: v2_3Body.artist)
         );
       }
-      if (v2_3Body.album != null) {
+      if (v2_3Body.album.value != null) {
         output.addAll(
-          encodeProperty(frameID: 'TALB', content: v2_3Body.album)
+          encodeProperty(frameID: 'TALB', property: v2_3Body.album)
         );
       } 
-      if (v2_3Body.encoding != null) {
+      if (v2_3Body.encoding.value != null) {
         output.addAll(
-          encodeProperty(frameID: 'TSSE', content: v2_3Body.encoding)
+          encodeProperty(frameID: 'TSSE', property: v2_3Body.encoding)
         );
       }
-      if (v2_3Body.userDefines != null) {
-        for (final entry in v2_3Body.userDefines!.entries) {
+      if (v2_3Body.userDefines.value != null) {
+        for (final entry in v2_3Body.userDefines.value!) {
           output.addAll(
-            encodeProperty(frameID: 'TXXX', content: entry)
+            encodeProperty(frameID: 'TXXX', property: entry)
           );
         }
       }
-      if (v2_3Body.imageBytes != null && ImageCodec.getImageMimeType(v2_3Body.imageBytes!).isNotEmpty) {
+      if (v2_3Body.imageBytes.value != null && ImageCodec.getImageMimeType(v2_3Body.imageBytes.value!).isNotEmpty) {
         output.addAll(
-          encodeProperty(frameID: 'APIC', content: v2_3Body.imageBytes)
+          encodeProperty(frameID: 'APIC', property: v2_3Body.imageBytes)
         );
       }
     }
@@ -57,8 +58,8 @@ class ContentEncoder {
   /// - content: encode content, read from EncodeMetadataV2Body's properties
   /// 
   /// Unless you know what you're encoding the property, don't actively call it
-  List<int> encodeProperty({required String frameID, dynamic content}) {
-    if (content == null) return [];
+  List<int> encodeProperty({required String frameID, required MetadataProperty property}) {
+    if (property.value == null || property.attached) return [];
     _ContentEncoder? encoder;
     if (frameID == 'TXXX') {
       encoder = _TXXXEncoder(frameID);
@@ -67,7 +68,10 @@ class ContentEncoder {
     } else if (frameID == 'APIC') {
       encoder = _APICEncoder(frameID);
     }
-    return encoder?.encode(content) ?? [];
+    if (encoder != null) {
+      property.attached = true;
+    }
+    return encoder?.encode(property.value) ?? [];
   }
 }
 

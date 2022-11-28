@@ -1,6 +1,6 @@
 name: id3_codec
 description: An ID3 tag information parsing library based on dart, which supports the operation of Flutter on all platforms.
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/ijinfeng/flutter_id3
 
 environment:

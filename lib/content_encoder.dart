@@ -1,12 +1,11 @@
 import 'package:id3_codec/byte_codec.dart';
+import 'package:id3_codec/byte_util.dart';
 import 'package:id3_codec/encode_metadata.dart';
 import 'package:id3_codec/image_type.dart';
 
 // https://id3.org/d3v2.3.0
 class ContentEncoder {
-  const ContentEncoder({
-    this.body
-  });
+  const ContentEncoder({this.body});
 
   final MetadataEditableWrapper? body;
 
@@ -17,48 +16,45 @@ class ContentEncoder {
     if (body is MetadataV2_3Wrapper) {
       final v2_3Body = body as MetadataV2_3Wrapper;
       if (v2_3Body.title.value != null) {
-        output.addAll(
-          encodeProperty(frameID: 'TIT2', property: v2_3Body.title)
-        );
+        output
+            .addAll(encodeProperty(frameID: 'TIT2', property: v2_3Body.title, fillHeader: true));
       }
       if (v2_3Body.artist.value != null) {
-        output.addAll(
-          encodeProperty(frameID: 'TPE1', property: v2_3Body.artist)
-        );
+        output
+            .addAll(encodeProperty(frameID: 'TPE1', property: v2_3Body.artist, fillHeader: true));
       }
       if (v2_3Body.album.value != null) {
-        output.addAll(
-          encodeProperty(frameID: 'TALB', property: v2_3Body.album)
-        );
-      } 
+        output
+            .addAll(encodeProperty(frameID: 'TALB', property: v2_3Body.album, fillHeader: true));
+      }
       if (v2_3Body.encoding.value != null) {
         output.addAll(
-          encodeProperty(frameID: 'TSSE', property: v2_3Body.encoding)
-        );
+            encodeProperty(frameID: 'TSSE', property: v2_3Body.encoding, fillHeader: true));
       }
       if (v2_3Body.userDefines.value != null) {
         for (final entry in v2_3Body.userDefines.value!) {
-          output.addAll(
-            encodeProperty(frameID: 'TXXX', property: entry)
-          );
+          output.addAll(encodeProperty(frameID: 'TXXX', property: entry, fillHeader: true));
         }
       }
-      if (v2_3Body.imageBytes.value != null && ImageCodec.getImageMimeType(v2_3Body.imageBytes.value!).isNotEmpty) {
+      if (v2_3Body.imageBytes.value != null &&
+          ImageCodec.getImageMimeType(v2_3Body.imageBytes.value!).isNotEmpty) {
         output.addAll(
-          encodeProperty(frameID: 'APIC', property: v2_3Body.imageBytes)
-        );
+            encodeProperty(frameID: 'APIC', property: v2_3Body.imageBytes, fillHeader: true));
       }
     }
     return output;
   }
 
-
-  /// Encode the content corresponding to frameID.
+  /// Encode the content corresponding to frameID. If you set `fillHeader: true`, the result is all frame [frame Header + content] bytes.
   /// - frameID: frame identifier
   /// - content: encode content, read from EncodeMetadataV2Body's properties
-  /// 
+  /// - fillHeader: whether or not insert frame header in start of the output
+  ///
   /// Unless you know what you're encoding the property, don't actively call it
-  List<int> encodeProperty({required String frameID, required MetadataProperty property}) {
+  List<int> encodeProperty(
+      {required String frameID,
+      required MetadataProperty property,
+      bool fillHeader = false}) {
     if (property.value == null || property.attached) return [];
     _ContentEncoder? encoder;
     if (frameID == 'TXXX') {
@@ -70,8 +66,20 @@ class ContentEncoder {
     }
     if (encoder != null) {
       property.attached = true;
+      final contentBytes = encoder.encode(property.value);
+      if (fillHeader) {
+        List<int> output = [];
+        // wrap frame header(10 bytes)
+        final codec = ByteCodec();
+        output.addAll(codec.encode(frameID, limitByteLength: 4));
+        output.addAll(ByteUtil.toH1Bytes(contentBytes.length));
+        output.addAll([0x00, 0x00]);
+        return output + contentBytes;
+      } else {
+        return contentBytes;
+      }
     }
-    return encoder?.encode(property.value) ?? [];
+    return [];
   }
 }
 
@@ -109,7 +117,6 @@ class _TextInfomationEncoder extends _ContentEncoder {
 
     return output;
   }
-
 }
 
 /*
@@ -120,10 +127,10 @@ class _TextInfomationEncoder extends _ContentEncoder {
 */
 class _TXXXEncoder extends _ContentEncoder {
   _TXXXEncoder(super.frameID);
-  
+
   @override
   List<int> encode(content) {
-    if (content !is MapEntry) return [];
+    if (content is MapEntry == false) return [];
     List<int> output = [];
 
     // set text encoding 'UTF16'
@@ -144,7 +151,6 @@ class _TXXXEncoder extends _ContentEncoder {
 
     return output;
   }
-  
 }
 
 /*
@@ -171,7 +177,8 @@ class _APICEncoder extends _ContentEncoder {
 
     // MIME type
     String mimeType = ImageCodec.getImageMimeType(content);
-    final mimeBytes = codec.encode(mimeType, forceType: ByteCodecType.ISO_8859_1);
+    final mimeBytes =
+        codec.encode(mimeType, forceType: ByteCodecType.ISO_8859_1);
     output.addAll(mimeBytes);
     output.add(0x00);
 

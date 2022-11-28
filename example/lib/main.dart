@@ -104,14 +104,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   final encoder = ID3Encoder(bytes);
                   // ignore: prefer_const_constructors
                   bytes = encoder.encodeSync(MetadataV2_3Body(
-                      // title: 'T听我说谢谢你！',
-                      // artist: '大帅比!',
+                      title: 'T听我说谢谢你！',
+                      imageBytes: headerBytes,
+                      artist: '大帅比!',
                       userDefines: {
                         "时长": '2:48',
                         "userId": "ijinfeng"
                       },
-                      // album: 'ijinfeng出产的专辑',
-                      imageBytes: headerBytes));
+                      album: 'ijinfeng出产的专辑',
+                      ));
                   debugPrint("---编码成功");
                 },
                 child: const Text('编码 ID3v2.3')),

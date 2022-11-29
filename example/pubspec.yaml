@@ -69,6 +69,7 @@ flutter:
     - assets/wx_header.png
     - assets/song1.mp3
     - assets/song2.mp3
+    - assets/dafang.mp3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

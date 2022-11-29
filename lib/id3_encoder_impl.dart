@@ -226,6 +226,10 @@ class ID3V2_3Encoder extends _ID3Encoder {
             data: wrapperData);
         if (editResult.modify) {
           start = editResult.start;
+          // It should be noted here that the modified frame size difference should be added
+          int changedFrameSize = editResult.frameSize - frameSize;
+          _size += changedFrameSize;
+          remainingSize += changedFrameSize;
           frameSize = editResult.frameSize;
         } else {
           // Can't edit this frame
@@ -248,14 +252,15 @@ class ID3V2_3Encoder extends _ID3Encoder {
 
           // calculate new `_size` to 4 bytes
           _size += expansionSize + _defaultPadding.length;
-          List<int> sizeBytes = ByteUtil.toH0Bytes(_size);
-          // update size
-          _output.replaceRange(_calSizeStart, _calSizeStart + 4, sizeBytes);
         }
         // insert new frames
         _output.replaceRange(start, start + attachedBytes.length, attachedBytes);
       }
     }
+
+    List<int> sizeBytes = ByteUtil.toH0Bytes(_size);
+    // update size
+    _output.replaceRange(_calSizeStart, _calSizeStart + 4, sizeBytes);
   }
 
   List<int> _attachedProperties(MetadataV2_3Wrapper data) {

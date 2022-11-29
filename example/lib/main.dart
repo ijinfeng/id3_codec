@@ -44,7 +44,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     // assets/song1.mp3 ID3v2.3
     // assets/song2.mp3
-    rootBundle.load("assets/song1.mp3").then((value) {
+    // assets/dafang.mp3
+    rootBundle.load("assets/dafang.mp3").then((value) {
       bytes = value.buffer.asUint8List();
     });
     // bytes = [0x11, 0x22, 0x33];
@@ -102,17 +103,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   final headerBytes = header.buffer.asUint8List();
 
                   final encoder = ID3Encoder(bytes);
-                  // ignore: prefer_const_constructors
+// ignore: prefer_const_constructors
                   bytes = encoder.encodeSync(MetadataV2_3Body(
-                      title: 'T听我说谢谢你！',
-                      imageBytes: headerBytes,
-                      artist: '大帅比!',
-                      userDefines: {
-                        "时长": '2:48',
-                        "userId": "ijinfeng"
-                      },
-                      album: 'ijinfeng出产的专辑',
-                      ));
+                    title: '听我说谢谢你！',
+                    imageBytes: headerBytes,
+                    artist: '歌手ijinfeng',
+                    userDefines: {"时长": '2:48', "userId": "ijinfeng"},
+                    album: 'ijinfeng出产的专辑',
+                  ));
                   debugPrint("---编码成功");
                 },
                 child: const Text('编码 ID3v2.3')),

@@ -51,6 +51,7 @@ class MetadataV2_3Body extends MetadataV2Body {
   final Map<String, String>? userDefines;
 }
 
+class MetadataV2_4Body extends MetadataV2_3Body {}
 
 
 
@@ -88,4 +89,8 @@ class MetadataV2_3Wrapper extends MetadataEditableWrapper {
   bool hasUnAttachedProperty() {
     return !title.attached || !artist.attached || !album.attached || !encoding.attached || !imageBytes.attached || !userDefines.attached;
   }
+}
+
+class MetadataV2_4Wrapper extends MetadataV2_3Wrapper {
+  MetadataV2_4Wrapper(super.body);
 }

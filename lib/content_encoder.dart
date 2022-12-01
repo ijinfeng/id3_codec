@@ -11,38 +11,75 @@ class ContentEncoder {
 
   /// encode `MetadataV2Body` to bytes
   List<int> encode() {
-    assert(body != null);
-    List<int> output = [];
+    assert(body != null, 'Error: the body cant be empty.');    
     if (body is MetadataV2_3Wrapper) {
-      final v2_3Body = body as MetadataV2_3Wrapper;
-      if (v2_3Body.title.value != null) {
+      return _encodeMetadataV2_3(body as MetadataV2_3Wrapper);
+    } else if (body is MetadataV2_4Wrapper) {
+      return _encodeMetadataV2_4(body as MetadataV2_4Wrapper);
+    }
+    return [];
+  }
+
+  List<int> _encodeMetadataV2_3(MetadataV2_3Wrapper wrapper) {
+    List<int> output = [];
+    if (wrapper.title.value != null) {
         output
-            .addAll(encodeProperty(frameID: 'TIT2', property: v2_3Body.title, fillHeader: true));
+            .addAll(encodeProperty(frameID: 'TIT2', property: wrapper.title, fillHeader: true));
       }
-      if (v2_3Body.artist.value != null) {
+      if (wrapper.artist.value != null) {
         output
-            .addAll(encodeProperty(frameID: 'TPE1', property: v2_3Body.artist, fillHeader: true));
+            .addAll(encodeProperty(frameID: 'TPE1', property: wrapper.artist, fillHeader: true));
       }
-      if (v2_3Body.album.value != null) {
+      if (wrapper.album.value != null) {
         output
-            .addAll(encodeProperty(frameID: 'TALB', property: v2_3Body.album, fillHeader: true));
+            .addAll(encodeProperty(frameID: 'TALB', property: wrapper.album, fillHeader: true));
       }
-      if (v2_3Body.encoding.value != null) {
+      if (wrapper.encoding.value != null) {
         output.addAll(
-            encodeProperty(frameID: 'TSSE', property: v2_3Body.encoding, fillHeader: true));
+            encodeProperty(frameID: 'TSSE', property: wrapper.encoding, fillHeader: true));
       }
-      if (v2_3Body.userDefines.value != null) {
-        for (final entry in v2_3Body.userDefines.value!) {
+      if (wrapper.userDefines.value != null) {
+        for (final entry in wrapper.userDefines.value!) {
           output.addAll(encodeProperty(frameID: 'TXXX', property: entry, fillHeader: true));
         }
       }
-      if (v2_3Body.imageBytes.value != null &&
-          ImageCodec.getImageMimeType(v2_3Body.imageBytes.value!).isNotEmpty) {
+      if (wrapper.imageBytes.value != null &&
+          ImageCodec.getImageMimeType(wrapper.imageBytes.value!).isNotEmpty) {
         output.addAll(
-            encodeProperty(frameID: 'APIC', property: v2_3Body.imageBytes, fillHeader: true));
+            encodeProperty(frameID: 'APIC', property: wrapper.imageBytes, fillHeader: true));
       }
-    }
-    return output;
+      return output;
+  }
+
+  List<int> _encodeMetadataV2_4(MetadataV2_4Wrapper wrapper) {
+    List<int> output = [];
+    if (wrapper.title.value != null) {
+        output
+            .addAll(encodeProperty(frameID: 'TIT2', property: wrapper.title, fillHeader: true));
+      }
+      if (wrapper.artist.value != null) {
+        output
+            .addAll(encodeProperty(frameID: 'TPE1', property: wrapper.artist, fillHeader: true));
+      }
+      if (wrapper.album.value != null) {
+        output
+            .addAll(encodeProperty(frameID: 'TALB', property: wrapper.album, fillHeader: true));
+      }
+      if (wrapper.encoding.value != null) {
+        output.addAll(
+            encodeProperty(frameID: 'TSSE', property: wrapper.encoding, fillHeader: true));
+      }
+      if (wrapper.userDefines.value != null) {
+        for (final entry in wrapper.userDefines.value!) {
+          output.addAll(encodeProperty(frameID: 'TXXX', property: entry, fillHeader: true));
+        }
+      }
+      if (wrapper.imageBytes.value != null &&
+          ImageCodec.getImageMimeType(wrapper.imageBytes.value!).isNotEmpty) {
+        output.addAll(
+            encodeProperty(frameID: 'APIC', property: wrapper.imageBytes, fillHeader: true));
+      }
+      return output;
   }
 
   /// Encode the content corresponding to frameID. If you set `fillHeader: true`, the result is all frame [frame Header + content] bytes.

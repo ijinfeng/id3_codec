@@ -13,6 +13,9 @@ enum ByteCodecType {
   UTF8
 }
 
+/// A global ISO_8859_1 codec
+final iso_8859_1_codec = ByteCodec(textEncodingByte: 0x00);
+
 class ByteCodec {
   /// textEncodingByte: codec type
   /// - 0x00: ISO_8859_1
@@ -33,7 +36,7 @@ class ByteCodec {
     }
   }
 
-  late ByteCodecType _codecType;
+  late final ByteCodecType _codecType;
 
   ByteCodecType get codecType => _codecType;
 
@@ -48,6 +51,8 @@ class ByteCodec {
       return _decodeWithUTF16BE(bytes);
     } else if (decodeType == ByteCodecType.UTF8) {
       return utf8.decode(bytes, allowMalformed: true);
+    } else if (decodeType == ByteCodecType.UTF16LE) {
+      return _decodeWithUTF16LE(bytes);
     } else {
       return '';
     }
@@ -66,9 +71,7 @@ class ByteCodec {
   }
 
   // BE 即 big-endian，大端的意思。大端就是将高位的字节放在低地址表示
-  String _decodeWithUTF16BE(List<int> bytes) {
-    _codecType = ByteCodecType.UTF16BE;
-    
+  String _decodeWithUTF16BE(List<int> bytes) {    
     final utf16bes = List.generate((bytes.length / 2).ceil(), (index) => 0);
 
     for (int i = 0; i < bytes.length; i++) {
@@ -83,8 +86,6 @@ class ByteCodec {
 
   // LE 即 little-endian，小端的意思。小端就是将高位的字节放在高地址表示
   String _decodeWithUTF16LE(List<int> bytes) {
-    _codecType = ByteCodecType.UTF16LE;
-
     final utf16les = List.generate((bytes.length / 2).ceil(), (index) => 0);
 
     for (int i = 0; i < bytes.length; i++) {
@@ -179,6 +180,13 @@ class ByteCodec {
       }
     } else if (decodeType == ByteCodecType.UTF16BE) {
       final bytes = _encodeWithUTF16BE(string);
+      if (limitByteLength != null) {
+        return transferToLength(bytes, byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
+      } else {
+        return bytes;
+      }
+    } else if (decodeType == ByteCodecType.UTF16LE) {
+      final bytes = _encodeWithUTF16LE(string);
       if (limitByteLength != null) {
         return transferToLength(bytes, byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
       } else {

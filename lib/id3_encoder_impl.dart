@@ -153,6 +153,10 @@ class ID3V2_3Encoder extends _ID3Encoder {
 
     // If it is not v2.3 version, tag data will be erased
     if (major != 3) {
+      // remove extended header flag
+      final updateFlags = 0x00;
+      _output.replaceRange(_calSizeStart - 1, _calSizeStart, [updateFlags]);
+
       // Frames
       final contentEncoder = ContentEncoder(body: MetadataV2_3Wrapper(data));
       final framesBytes = contentEncoder.encode();
@@ -196,8 +200,8 @@ class ID3V2_3Encoder extends _ID3Encoder {
 
     // Edit an existing frame that needs to be modified
     while (remainingSize > 0) {
-      final frameID = latin1.decode(_output.sublist(start, start + 4));
-      if (frameID == latin1.decode([0, 0, 0, 0])) {
+      final frameID = iso_8859_1_codec.decode(_output.sublist(start, start + 4));
+      if (frameID == iso_8859_1_codec.decode([0, 0, 0, 0])) {
         break;
       }
       start += 4;
@@ -247,14 +251,16 @@ class ID3V2_3Encoder extends _ID3Encoder {
       if (attachedBytes.isNotEmpty) {
         // The remaining space is not enough and needs to be expanded
         if (remainingSize < attachedBytes.length) {
-          final expansionSize = attachedBytes.length - remainingSize;
-          _output.insertAll(start + remainingSize, List.filled(expansionSize, 0x00));
+          final expansionSize = attachedBytes.length - remainingSize + _defaultPadding.length;
+          _output.insertAll(
+              start + remainingSize, List.filled(expansionSize, 0x00));
 
           // calculate new `_size` to 4 bytes
-          _size += expansionSize + _defaultPadding.length;
+          _size += expansionSize;
         }
         // insert new frames
-        _output.replaceRange(start, start + attachedBytes.length, attachedBytes);
+        _output.replaceRange(
+            start, start + attachedBytes.length, attachedBytes);
       }
     }
 
@@ -321,17 +327,29 @@ class ID3V2_3Encoder extends _ID3Encoder {
 
 class ID3V2_4Encoder extends _ID3Encoder {
   ID3V2_4Encoder(super.bytes) : _output = List.from(bytes);
-  
+
   final List<int> _output;
 
   /// Record the starting position of size calculation,
   /// and calculate the total size after all frames are filled
   int _calSizeStart = 0;
 
+  /// The ID3v2 tag size, excluding the header and footer
+  int _size = 0;
+
+  /// Where the 'Extended header size' is the size of the whole extended
+  /// header, stored as a 32 bit synchsafe integer. An extended header can
+  /// thus never have a size of fewer than six bytes.
+  int _extendedSize = 0;
+
+  bool _hasFooter = false;
+
+  TagRestrictions? _tagRestrictions;
+
   List<int> encode(MetadataV2_4Body data) {
     int start = 0;
     final idBytes = _output.sublist(start, start + 3);
-    if (iso_8859_1_codec.decode(idBytes) =='ID3') {
+    if (iso_8859_1_codec.decode(idBytes) == 'ID3') {
       start += 3;
       _deepDecode(start, data);
     } else {
@@ -339,13 +357,15 @@ class ID3V2_4Encoder extends _ID3Encoder {
       // Maybe there exists id3v1, so we should first search for ID3v1
       int outputLength = _output.length;
       start = outputLength - 128;
-      if (start > 0 && iso_8859_1_codec.decode(_output.sublist(start, start + 3)) == 'TAG') {
+      if (start > 0 &&
+          iso_8859_1_codec.decode(_output.sublist(start, start + 3)) == 'TAG') {
         // exist ID3v1
         start -= 10;
       } else {
         start = outputLength - 10;
       }
-      if (start > 0 && iso_8859_1_codec.decode(_output.sublist(start, start + 3)) == '3DI') {
+      if (start > 0 &&
+          iso_8859_1_codec.decode(_output.sublist(start, start + 3)) == '3DI') {
         start += 3;
         // exist footer, find the `start` of id3v2.4
         start = _decodeFooterReturnFixStart(start);
@@ -382,7 +402,182 @@ class ID3V2_4Encoder extends _ID3Encoder {
   void _deepDecode(int start, MetadataV2_4Body data) {
     // version
     final major = _output.sublist(start, start + 1).first;
-    
+    start += 2;
+
+    // flags - %abc00000
+    final flags = _output.sublist(start, start + 1).first;
+    start += 1;
+
+    final hasExtendedHeader = (flags & 0x40) != 0;
+    _hasFooter = (flags & 0x10) != 0;
+
+    // size - 4 * %0xxxxxxx
+    List<int> sizeBytes = _output.sublist(start, start + 4);
+    _calSizeStart = start;
+    start += 4;
+
+    // The ID3v2 tag size is the sum of the byte length of the extended
+    // header, the padding and the frames after unsynchronisation. If a
+    // footer is present this equals to ('total size' - 20) bytes, otherwise
+    // ('total size' - 10) bytes.
+    _size = ByteUtil.calH0Size(sizeBytes);
+
+    if (major != '4') {
+      // reset flags
+      _output.replaceRange(_calSizeStart - 1, _calSizeStart, [0x00]);
+
+      // no extended header 
+
+      // Frames
+      final contentEncoder = ContentEncoder(body: MetadataV2_4Wrapper(data));
+      final framesBytes = contentEncoder.encode();
+      if (framesBytes.length <= _size) {
+        final filledLength = _size - framesBytes.length;
+        final insertBytes = framesBytes + List.filled(filledLength, 0x00);
+        _output.replaceRange(start, start + insertBytes.length, insertBytes);
+      } else {
+        // The `size` was become larger
+        final insertBytes = framesBytes + _defaultPadding;
+        final moveLength = insertBytes.length - _size;
+        _output.insertAll(start + _size, List.filled(moveLength, 0x00));
+        _output.replaceRange(start, start + insertBytes.length, insertBytes);
+
+        // new size
+        _size = insertBytes.length;
+
+        List<int> sizeBytes = ByteUtil.toH0Bytes(_size);
+        _output.replaceRange(_calSizeStart, _calSizeStart + 4, sizeBytes);
+      }
+    } else {
+      if (hasExtendedHeader) {
+        start = _parseExtendedHeader(start);
+      }
+      start = _decodeFrames(start, data);
+      if (_hasFooter) {
+        _addFooter(start);
+      }
+    }
+  }
+
+  int _parseExtendedHeader(int start) {
+    // Extended Header
+    final extSizeBytes = _output.sublist(start, start + 4);
+    final extSize = ByteUtil.calH0Size(extSizeBytes);
+
+    // Flags
+    int flagsStart = start + 5;
+    final flagsByte = _output.sublist(flagsStart, 1).first;
+    // We just need to focus on 'd - Tag restrictions'
+    bool hasTagRestrictions = (flagsByte & 0x10) != 0;
+    if (hasTagRestrictions) {
+      bool hasb = (flagsByte & 0x40) != 0;
+      bool hasc = (flagsByte & 0x20) != 0;
+      if (hasb) {
+        flagsStart += 1;
+      }
+      if (hasc) {
+        flagsStart += 6;
+      }
+      // Flag data length       $01
+      // Restrictions           %ppqrrstt
+      flagsStart += 1; // Flag data length
+      final tagRFlags = _output.sublist(flagsStart, flagsStart + 1).first;
+      _tagRestrictions = TagRestrictions(flags: tagRFlags & 0xFF);
+    }
+
+    start += extSize;
+    // the 'Extended header size' is the size of the whole extended header
+    _extendedSize = extSize;
+    return start;
+  }
+
+  int _decodeFrames(int start, MetadataV2_4Body data) {
+    // remaining size = frames + padding[it MUST NOT have any padding when a tag footer is added to the tag.]
+    int remainingSize = _size - _extendedSize;
+    final editor = ContentEditor(bytes: _output);
+    final wrapperData = MetadataV2_4Wrapper(data, tagRestrictions: _tagRestrictions);
+
+    // Edit an existing frame that needs to be modified
+    while (remainingSize > 0) {
+      final frameID = iso_8859_1_codec.decode(_output.sublist(start, start + 4));
+      if (frameID == iso_8859_1_codec.decode([0, 0, 0, 0])) {
+        break;
+      }
+      start += 4;
+
+      // frame size
+      final frameSizeBytes = _output.sublist(start, start + 4);
+      start += 4;
+      int frameSize = ByteUtil.calH0Size(frameSizeBytes);
+
+      // Flags - %0abc0000 %0h00kmnp
+      final flags = _output.sublist(start, start + 2);
+      start += 2;
+
+      bool readOnly = (flags[0] & 0x10) != 0;
+      bool compression = (flags[1] & 0x8) != 0;
+
+      if (!readOnly) {
+        final editResult = editor.editFrameWithData(
+            start: start,
+            frameID: frameID,
+            frameSize: frameSize,
+            compression: compression,
+            data: wrapperData);
+        if (editResult.modify) {
+          start = editResult.start;
+          // It should be noted here that the modified frame size difference should be added
+          int changedFrameSize = editResult.frameSize - frameSize;
+          _size += changedFrameSize;
+          remainingSize += changedFrameSize;
+          frameSize = editResult.frameSize;
+        } else {
+          // Can't edit this frame
+          start += frameSize;
+        }
+      } else {
+        start += frameSize;
+      }
+      remainingSize -= frameSize + 10 /*frameID+size+flags*/;
+    }
+
+    // There are unattached properties
+    if (wrapperData.hasUnAttachedProperty()) {
+      final attachedBytes = ContentEncoder(body: wrapperData).encode();
+      if (attachedBytes.isNotEmpty) {
+        // The remaining space is not enough and needs to be expanded
+        if (remainingSize < attachedBytes.length) {
+          final expansionSize = attachedBytes.length - remainingSize + (_hasFooter ? 0 : _defaultPadding.length);
+          _output.insertAll(
+              start + remainingSize, List.filled(expansionSize, 0x00));
+
+          // calculate new `_size` to 4 bytes
+          _size += expansionSize;
+        }
+        // insert new frames
+        _output.replaceRange(
+            start, start + attachedBytes.length, attachedBytes);
+        start += attachedBytes.length;
+        if (!_hasFooter) {
+          start += _defaultPadding.length;
+        }
+      }
+    }
+
+    List<int> sizeBytes = ByteUtil.toH0Bytes(_size);
+    // update size
+    _output.replaceRange(_calSizeStart, _calSizeStart + 4, sizeBytes);
+
+    return start;
+  }
+
+  void _addFooter(int start) {
+    List<int> footer = [];
+    footer.addAll(iso_8859_1_codec.encode('3DI', limitByteLength: 3));
+    footer.addAll([0x04, 0x00]);
+    footer.add(_output.sublist(_calSizeStart - 1, _calSizeStart).first);
+    footer.addAll(_output.sublist(_calSizeStart, _calSizeStart + 4));
+    _output.insertAll(start, footer);
   }
 
   List<int> _createNewID3Body(int start, MetadataV2_4Body data) {

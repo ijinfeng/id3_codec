@@ -19,6 +19,9 @@ class ContentEditor {
     if (data is MetadataV2_3Wrapper) {
       return _editFrameWithV2_3Data(
           start, frameID, frameSize, compression, data);
+    } else if (data is MetadataV2_4Wrapper) {
+      return _editFrameWithV2_4Data(
+          start, frameID, frameSize, compression, data);
     }
     return EditorResult.noEdit(
         frameID: frameID, start: start, frameSize: frameSize);
@@ -26,6 +29,33 @@ class ContentEditor {
 
   EditorResult _editFrameWithV2_3Data(int start, String frameID, int frameSize,
       bool compression, MetadataV2_3Wrapper data) {
+    if (frameID == 'TIT2' && data.title.value != null) {
+      return _editFrameWithProperty(
+          start, frameID, frameSize, compression, data.title);
+    } else if (frameID == 'TXXX' && data.userDefines.value != null) {
+      return _editFrameWithProperty(
+          start, frameID, frameSize, compression, data.userDefines);
+    } else if (frameID == 'TPE1' && data.artist.value != null) {
+      return _editFrameWithProperty(
+          start, frameID, frameSize, compression, data.artist);
+    } else if (frameID == 'TALB' && data.album.value != null) {
+      return _editFrameWithProperty(
+          start, frameID, frameSize, compression, data.album);
+    } else if (frameID == 'TSSE' && data.encoding.value != null) {
+      return _editFrameWithProperty(
+          start, frameID, frameSize, compression, data.encoding);
+    } else if (frameID == 'APIC' &&
+        data.imageBytes.value != null &&
+        ImageCodec.getImageMimeType(data.imageBytes.value!).isNotEmpty) {
+      return _editFrameWithProperty(
+          start, frameID, frameSize, compression, data.imageBytes);
+    }
+    return EditorResult.noEdit(
+        frameID: frameID, start: start, frameSize: frameSize);
+  }
+
+  EditorResult _editFrameWithV2_4Data(int start, String frameID, int frameSize,
+      bool compression, MetadataV2_4Wrapper data) {
     if (frameID == 'TIT2' && data.title.value != null) {
       return _editFrameWithProperty(
           start, frameID, frameSize, compression, data.title);

@@ -544,7 +544,7 @@ class ID3V2Decoder extends _ID3Decoder {
        1    Strings are only encoded with ISO-8859-1 [ISO-8859-1] or
             UTF-8 [UTF-8].
       */
-      final q = (flagContent & 0x20) >> 5;
+      final q = (flagContent & 0x20) >>> 5;
       key = "d - Tag restrictions[q]";
       if (q == 0) {
         metadata.set(value: q, key: key, desc: 'No restrictions');
@@ -564,7 +564,7 @@ class ID3V2Decoder extends _ID3Decoder {
        10   No string is longer than 128 characters.
        11   No string is longer than 30 characters.
       */
-      final r = (flagContent & 0x18) >> 3;
+      final r = (flagContent & 0x18) >>> 3;
       key = "d - Tag restrictions[rr]";
       if (r == 0) {
         metadata.set(value: r, key: key, desc: 'No restrictions');
@@ -589,7 +589,7 @@ class ID3V2Decoder extends _ID3Decoder {
        0   No restrictions
        1   Images are encoded only with PNG [PNG] or JPEG [JFIF].
       */
-      final s = (flagContent & 0x4) >> 2;
+      final s = (flagContent & 0x4) >>> 2;
       key = "d - Tag restrictions[s]";
       if (s == 0) {
         metadata.set(value: s, key: key, desc: 'No restrictions');

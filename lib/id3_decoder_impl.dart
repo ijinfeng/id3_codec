@@ -785,7 +785,7 @@ class ID3V2Decoder extends _ID3Decoder {
     while (frameSizes > 0) {
       // Frame ID
       final frameID = readValue(frameV2_4[0], start);
-      if (frameID == latin1.decode([0, 0, 0, 0])) {
+      if (frameID == iso_8859_1_codec.decode([0, 0, 0, 0])) {
         break;
       }
       start += frameV2_4[0].length;
@@ -971,8 +971,12 @@ class ID3V2Decoder extends _ID3Decoder {
       }
 
       // Content
-      final contentBytes = bytes.sublist(start, start + frameSize);
+      List<int> contentBytes = bytes.sublist(start, start + frameSize);
       start += frameSize;
+      if (k != 0) {
+        // Compression by `zlib`
+        contentBytes = zlib.decode(contentBytes);
+      }
       final decoder = ContentDecoder(frameID: frameID, bytes: contentBytes);
       final content = decoder.decode();
       metadata.set(value: content, key: 'Content');

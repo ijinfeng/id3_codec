@@ -56,29 +56,29 @@ class ContentEncoder {
     List<int> output = [];
     if (wrapper.title.value != null) {
         output
-            .addAll(encodeProperty(frameID: 'TIT2', property: wrapper.title, fillHeader: true, sizeH0: false));
+            .addAll(encodeProperty(frameID: 'TIT2', property: wrapper.title, fillHeader: true, sizeH0: true));
       }
       if (wrapper.artist.value != null) {
         output
-            .addAll(encodeProperty(frameID: 'TPE1', property: wrapper.artist, fillHeader: true, sizeH0: false));
+            .addAll(encodeProperty(frameID: 'TPE1', property: wrapper.artist, fillHeader: true, sizeH0: true));
       }
       if (wrapper.album.value != null) {
         output
-            .addAll(encodeProperty(frameID: 'TALB', property: wrapper.album, fillHeader: true, sizeH0: false));
+            .addAll(encodeProperty(frameID: 'TALB', property: wrapper.album, fillHeader: true, sizeH0: true));
       }
       if (wrapper.encoding.value != null) {
         output.addAll(
-            encodeProperty(frameID: 'TSSE', property: wrapper.encoding, fillHeader: true, sizeH0: false));
+            encodeProperty(frameID: 'TSSE', property: wrapper.encoding, fillHeader: true, sizeH0: true));
       }
       if (wrapper.userDefines.value != null) {
         for (final entry in wrapper.userDefines.value!) {
-          output.addAll(encodeProperty(frameID: 'TXXX', property: entry, fillHeader: true, sizeH0: false));
+          output.addAll(encodeProperty(frameID: 'TXXX', property: entry, fillHeader: true, sizeH0: true));
         }
       }
       if (wrapper.imageBytes.value != null &&
           ImageCodec.getImageMimeType(wrapper.imageBytes.value!).isNotEmpty) {
         output.addAll(
-            encodeProperty(frameID: 'APIC', property: wrapper.imageBytes, fillHeader: true, sizeH0: false));
+            encodeProperty(frameID: 'APIC', property: wrapper.imageBytes, fillHeader: true, sizeH0: true));
       }
       return output;
   }

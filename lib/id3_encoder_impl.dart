@@ -153,6 +153,9 @@ class ID3V2_3Encoder extends _ID3Encoder {
 
     // If it is not v2.3 version, tag data will be erased
     if (major != 3) {
+      // update major
+      _output.replaceRange(_calSizeStart - 3, _calSizeStart - 1, [0x03, 0x00]);
+
       // remove extended header flag
       final updateFlags = 0x00;
       _output.replaceRange(_calSizeStart - 1, _calSizeStart, [updateFlags]);
@@ -422,7 +425,10 @@ class ID3V2_4Encoder extends _ID3Encoder {
     // ('total size' - 10) bytes.
     _size = ByteUtil.calH0Size(sizeBytes);
 
-    if (major != '4') {
+    if (major != 4) {
+      // update major
+      _output.replaceRange(_calSizeStart - 3, _calSizeStart - 1, [0x04, 0x00]);
+
       // reset flags
       _output.replaceRange(_calSizeStart - 1, _calSizeStart, [0x00]);
 

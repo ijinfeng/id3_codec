@@ -111,9 +111,26 @@ class _MyHomePageState extends State<MyHomePage> {
                     userDefines: {"时长": '2:48', "userId": "ijinfeng"},
                     album: 'ijinfeng出产的专辑',
                   ));
-                  debugPrint("---编码成功");
+                  debugPrint("---2.3编码成功");
                 },
                 child: const Text('编码 ID3v2.3')),
+            TextButton(
+                onPressed: () async {
+                  final header = await rootBundle.load("assets/wx_header.png");
+                  final headerBytes = header.buffer.asUint8List();
+
+                  final encoder = ID3Encoder(bytes);
+// ignore: prefer_const_constructors
+                  bytes = encoder.encodeSync(MetadataV2_4Body(
+                    title: '拔萝卜',
+                    imageBytes: headerBytes,
+                    artist: '歌手小兔子',
+                    userDefines: {"种族": '兔八哥'},
+                    album: '向着光明的太阳 GO~',
+                  ));
+                  debugPrint("---2.4编码成功");
+                },
+                child: const Text('编码 ID3v2.4')),
             const Divider(),
             TextButton(
                 onPressed: () async {

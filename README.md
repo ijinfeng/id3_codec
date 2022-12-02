@@ -1,6 +1,6 @@
 # id3_codec
 
-An ID3 tag information parsing library based on dart, which supports the operation of `Flutter` on all platforms.
+An ID3 tag information codec library based on dart, which supports the operation of `Flutter` on all platforms. You can easily read the tag information of the audio in detail, or edit the tag information.
 
 ![v1](https://img.shields.io/badge/ID3-v1-green)
 ![v1.1](https://img.shields.io/badge/ID3-v1.1-green)
@@ -11,7 +11,7 @@ An ID3 tag information parsing library based on dart, which supports the operati
 ![decode](https://img.shields.io/badge/ID3-decode-red)
 ![encode](https://img.shields.io/badge/ID3-encode-yellow)
 
-## ID3 version that supports decoding
+## ID3 version that supports decode to readable tags
 
 - [x] v1
 - [x] v1.1
@@ -20,15 +20,13 @@ An ID3 tag information parsing library based on dart, which supports the operati
 - [x] v2.4
 
 
-## ID3 version that supports encoding
-
-NOW, START SUPPORTED ID3 **ENCODE**!🎉
+## ID3 version that supports edit or encoding
 
 - [x] v1
 - [x] v1.1
-- [ ] v2.2
+- [ ] v2.2（Not support）
 - [x] v2.3
-- [ ] v2.4
+- [x] v2.4
 
 ## Install
 
@@ -78,7 +76,7 @@ debugPrint(metadata.toString());
 
 You can edit existing id3 tags, or add new tag information into it.
 
-* encode to v1 and v1.1
+* edit or encode v1 and v1.1
 ```dart
 final data = await rootBundle.load("assets/song2.mp3");
 final bytes = data.buffer.asUint8List();
@@ -95,7 +93,7 @@ final resultBytes = encoder.encode(MetadataV1Body(
 
 // you can read [resultBytes] by ID3Decoder or other ID3 tag pubs;
 ```
-* encode to v2.3
+* edit or encode v2.3
 
 ```dart
 final data = await rootBundle.load("assets/song1.mp3");

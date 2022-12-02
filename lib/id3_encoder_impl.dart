@@ -482,7 +482,7 @@ class ID3V2_4Encoder extends _ID3Encoder {
       // Restrictions           %ppqrrstt
       flagsStart += 1; // Flag data length
       final tagRFlags = _output.sublist(flagsStart, flagsStart + 1).first;
-      _tagRestrictions = TagRestrictions(flags: tagRFlags & 0xFF);
+      _tagRestrictions = TagRestrictions.v2_4(flags: tagRFlags & 0xFF);
     }
 
     start += extSize;

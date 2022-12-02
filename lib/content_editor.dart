@@ -58,34 +58,34 @@ class ContentEditor {
       bool compression, MetadataV2_4Wrapper data) {
     if (frameID == 'TIT2' && data.title.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.title);
+          start, frameID, frameSize, compression, data.title, tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'TXXX' && data.userDefines.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.userDefines);
+          start, frameID, frameSize, compression, data.userDefines, tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'TPE1' && data.artist.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.artist);
+          start, frameID, frameSize, compression, data.artist, tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'TALB' && data.album.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.album);
+          start, frameID, frameSize, compression, data.album, tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'TSSE' && data.encoding.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.encoding);
+          start, frameID, frameSize, compression, data.encoding, tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'APIC' &&
         data.imageBytes.value != null &&
         ImageCodec.getImageMimeType(data.imageBytes.value!).isNotEmpty) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.imageBytes);
+          start, frameID, frameSize, compression, data.imageBytes, tagRestrictions: data.tagRestrictions);
     }
     return EditorResult.noEdit(
         frameID: frameID, start: start, frameSize: frameSize);
   }
 
   EditorResult _editFrameWithProperty(int start, String frameID, int frameSize,
-      bool compression, MetadataProperty property) {
+      bool compression, MetadataProperty property, {TagRestrictions? tagRestrictions}) {
     final contentEncoder = ContentEncoder();
     List<int> contentBytes =
-        contentEncoder.encodeProperty(frameID: frameID, property: property);
+        contentEncoder.encodeProperty(frameID: frameID, property: property, fillHeader: false, tagRestrictions: tagRestrictions);
     if (contentBytes.isEmpty) {
       return EditorResult.noEdit(frameID: frameID, start: start, frameSize: frameSize);
     }

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:id3_codec/byte_codec.dart';
 import 'package:id3_codec/byte_util.dart';
 import 'package:id3_codec/content_decoder.dart';
@@ -25,7 +24,7 @@ abstract class _ID3Decoder {
   dynamic readValue(ID3Fragment fragment, int start, {List<int>? bytes}) {
     final sub = (bytes ?? this.bytes).sublist(start, fragment.length + start);
     if (fragment.needDecode) {
-      return latin1.decode(sub).trim();
+      return iso_8859_1_codec.decode(sub);
     } else if (fragment.length == 1) {
       return sub.first;
     }
@@ -111,8 +110,17 @@ class ID3V1Decoder extends _ID3Decoder {
     }
 
     // Genre
+    // Index in a list of genres, or 255
     final genre = bytes.sublist(start, start + 1).first;
-    metadata.set(value: genreList[genre], key: 'Genre');
+    if (genre == 255) {
+      metadata.set(value: 'Default', key: 'Genre');
+    } else {
+      if (genre >= genreList.length) {
+        metadata.set(value: 'Unknown', key: 'Genre');
+      } else {
+        metadata.set(value: genreList[genre], key: 'Genre');
+      }
+    }
     start += 1;
 
     return true;
@@ -664,7 +672,7 @@ class ID3V2Decoder extends _ID3Decoder {
     while (frameSizes > 0) {
       // Frame ID
       final frameID = readValue(frameV2_2[0], start);
-      if (frameID == latin1.decode([0, 0, 0])) {
+      if (frameID == iso_8859_1_codec.decode([0, 0, 0])) {
         break;
       }
       start += frameV2_2[0].length;
@@ -704,7 +712,7 @@ class ID3V2Decoder extends _ID3Decoder {
     while (frameSizes > 0) {
       // Frame ID
       final frameID = readValue(frameV2_3[0], start);
-      if (frameID == latin1.decode([0, 0, 0, 0])) {
+      if (frameID == iso_8859_1_codec.decode([0, 0, 0, 0])) {
         break;
       }
       start += frameV2_3[0].length;
@@ -1022,7 +1030,7 @@ class ID3V2Decoder extends _ID3Decoder {
     if (start < 0) return 0;
     // ID
     final idBytes = bytes.sublist(start, start + 3);
-    final id = latin1.decode(idBytes);
+    final id = iso_8859_1_codec.decode(idBytes);
     if (id != '3DI') {
       return 0;
     }

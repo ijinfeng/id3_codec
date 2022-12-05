@@ -93,7 +93,7 @@ final resultBytes = encoder.encode(MetadataV1Body(
 
 // you can read [resultBytes] by ID3Decoder or other ID3 tag pubs;
 ```
-* edit or encode v2.3
+* edit or encode v2.3/v2.4
 
 ```dart
 final data = await rootBundle.load("assets/song1.mp3");
@@ -103,6 +103,7 @@ final header = await rootBundle.load("assets/wx_header.png");
 final headerBytes = header.buffer.asUint8List();
 
 final encoder = ID3Encoder(bytes);
+// if you need encode or edit v2.4, just use `MetadataV2_4Body` instead of `MetadataV2_3Body`
 // ignore: prefer_const_constructors
 final resultBytes = encoder.encodeSync(MetadataV2_3Body(
     title: '听我说谢谢你！',

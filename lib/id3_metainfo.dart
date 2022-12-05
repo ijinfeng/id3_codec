@@ -141,7 +141,8 @@ class _ID3MetadataValue {
 
   @override
   String toString() {
-    return desc != null ? "$value[$desc]" : "$value";
+    final ret = desc != null ? "$value[$desc]" : "$value";
+    return "$ret";
   }
 }
 

@@ -2,6 +2,8 @@
 
 import 'dart:convert';
 
+import 'package:id3_codec/byte_util.dart';
+
 enum ByteCodecType {
   // Other
   Unknown,
@@ -44,13 +46,13 @@ class ByteCodec {
     if (bytes.isEmpty) return '';
     final decodeType = forceType ?? codecType;
     if (decodeType == ByteCodecType.ISO_8859_1) {
-      return latin1.decode(bytes, allowInvalid: true);
+      return latin1.decode(ByteUtil.trim(bytes), allowInvalid: true);
     } else if (decodeType == ByteCodecType.UTF16) {
       return _decodeWithUTF16(bytes);
     } else if (decodeType == ByteCodecType.UTF16BE) {
       return _decodeWithUTF16BE(bytes);
     } else if (decodeType == ByteCodecType.UTF8) {
-      return utf8.decode(bytes, allowMalformed: true);
+      return utf8.decode(ByteUtil.trim(bytes), allowMalformed: true);
     } else if (decodeType == ByteCodecType.UTF16LE) {
       return _decodeWithUTF16LE(bytes);
     } else {

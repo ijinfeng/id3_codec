@@ -62,4 +62,42 @@ class ByteUtil {
     sizeBytes[3] = ((size << 24) >>> 24) & 0xFF;
     return sizeBytes;
   }
+
+  /// Remove a series of 0x00 in the header
+  static List<int> trimStart(List<int> bytes) {
+    if (bytes.isEmpty) return [];
+    int i = 0;
+    while (bytes[i] == 0x00) {
+      i++;
+      if (i >= bytes.length) {
+        return [];
+      }
+    }
+    return bytes.sublist(i, bytes.length);
+  }
+
+  /// Remove a series of 0x00 in the footer
+  static List<int> trimEnd(List<int> bytes) {
+    if (bytes.isEmpty) return [];
+    int i = bytes.length - 1;
+    while (bytes[i] == 0x00) {
+      i--;
+      if (i < 0) {
+        return [];
+      }
+    }
+    return bytes.sublist(0, i + 1);
+  }
+
+  /// Remove a series of 0x00 in the header and footer
+  /// 
+  /// ```dart
+  /// final List<int> bytes = [0x00, 0x00, 0xFE, 0x00]
+  /// final resultBytes = ByteUtil.trim(bytes);
+  /// // resultBytes is [0xFE]
+  /// ```
+  static List<int> trim(List<int> bytes) {
+    final ret = trimEnd(trimStart(bytes));
+    return ret;
+  }
 }

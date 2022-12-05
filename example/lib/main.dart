@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:id3/id3.dart';
+import 'package:id3_codec/byte_codec.dart';
+import 'package:id3_codec/byte_util.dart';
 import 'package:id3_codec/id3_decoder.dart';
 import 'package:id3_codec/id3_encoder.dart';
 import 'package:id3_codec/encode_metadata.dart';
@@ -68,11 +72,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   final decoder = ID3Decoder(bytes);
                   decoder.decodeAsync().then((metadatas) {
                     for (var metadata in metadatas) {
-                      debugPrint(metadata.toString());
+                      debugPrint(metadata.toTagMap().toString());
                     }
                   });
                 },
                 child: const Text('[id3_codec] 解码')),
+            TextButton(
+                onPressed: () async {
+                  final data = await rootBundle.load("assets/Track08.mp3");
+                  final bytes = data.buffer.asUint8List();
+                  final decoder = ID3Decoder(bytes);
+                  decoder.decodeAsync().then((metadatas) {
+                    for (var metadata in metadatas) {
+                      debugPrint(metadata.toTagMap().toString());
+                    }
+                  });
+                },
+                child: const Text('encode NO ID3 file')),
             TextButton(
                 onPressed: () async {
                   final instance = MP3Instance(bytes);
@@ -144,6 +160,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   debugPrint("写入文件成功: ${file.path}");
                 },
                 child: const Text('写入文件')),
+
+                TextButton(
+                onPressed: () {
+                  List<int> bytes = [0x00, 0x00, 0x00, 0x00, 0x00];
+  print(HexOutput(ByteUtil.trimStart(bytes)));
+print(HexOutput(ByteUtil.trimEnd(bytes)));
+                  final ret = iso_8859_1_codec.decode(bytes);
+                  debugPrint("$ret, ok");
+                },
+                child: const Text('测试无效的编码')),
           ],
         ),
       ),

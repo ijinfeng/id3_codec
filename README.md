@@ -121,6 +121,8 @@ final resultBytes = encoder.encodeSync(MetadataV2_3Body(
 
 ## Related articles
 
-[Flutter ID3解码实现- v1、v1.1、v2.2、v2.3](https://juejin.cn/post/7166063262541283336)
-[Flutter ID3解码实现-v2.4](https://juejin.cn/post/7168678355020021796)
-[Flutter下 ID3 编码实现-超详细](https://juejin.cn/post/7171373297639112734)
+- [Flutter ID3解码实现- v1、v1.1、v2.2、v2.3](https://juejin.cn/post/7166063262541283336)
+
+- [Flutter ID3解码实现-v2.4](https://juejin.cn/post/7168678355020021796)
+
+- [Flutter下 ID3 编码实现-超详细](https://juejin.cn/post/7171373297639112734)

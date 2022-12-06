@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   final decoder = ID3Decoder(bytes);
                   decoder.decodeAsync().then((metadatas) {
                     for (var metadata in metadatas) {
-                      debugPrint(metadata.toString());
+                      debugPrint(metadata.toTagMap().toString());
                     }
                   });
                 },

@@ -1,7 +1,11 @@
+import 'package:id3_codec/content_decoder.dart';
+
 class ID3MetataInfo {
   final Map<String, dynamic> _metadata = {};
+  final Map<String, dynamic> _tagMap = {};
 
   final List _containers = [];
+  final List _tagMapContainers = [];
 
   MetadataRange range = MetadataRange();
 
@@ -17,7 +21,7 @@ class ID3MetataInfo {
     range._length = length;
   }
 
-  getContainer() {
+  _getContainer() {
     if (_hasContainer) {
       return _containers.last;
     } else {
@@ -25,75 +29,125 @@ class ID3MetataInfo {
     }
   }
 
+  _getTagMapContainer() {
+    if (_hasContainer) {
+      return _tagMapContainers.last;
+    } else {
+      return null;
+    }
+  } 
+
+  _unwrapperValue(dynamic value) {
+    if (value is FrameContent) {
+      return value.content;
+    } else if (value is _ID3MetadataValue) {
+      return value.value;
+    } else {
+      return value;
+    }
+  }
+
   void set({required dynamic value, required String key, String? desc}) {
-    final lastContainer = getContainer();
+    final lastContainer = _getContainer();
     if (lastContainer != null) {
       if (lastContainer is List) {
         List list = lastContainer;
         list.add({key: _ID3MetadataValue(value: value, desc: desc)});
+        List tagList = _getTagMapContainer();
+        tagList.add({key: _unwrapperValue(value)});
       } else if (lastContainer is Map) {
         Map map = lastContainer;
         map[key] = _ID3MetadataValue(value: value, desc: desc);
+        Map tagMap = _getTagMapContainer();
+        tagMap[key] = _unwrapperValue(value);
       } else {
         assert(false, "Unknown container: $lastContainer.");
       }
     } else {
       _metadata[key] = _ID3MetadataValue(value: value, desc: desc);
+      _tagMap[key] = _unwrapperValue(value);
     }
   }
 
   void enterMapContainer(String name) {
     assert(!_metadata.containsKey(name),
         'The same boundary key[$name] already exists.');
-    final lastContainer = getContainer();
+    final lastContainer = _getContainer();
     if (lastContainer != null) {
       if (lastContainer is List) {
         List container = lastContainer;
         Map map = {};
         container.add(map);
         _containers.add(map);
+
+        List tagContainer = _getTagMapContainer();
+        Map tagMap = {};
+        tagContainer.add(tagMap);
+        _tagMapContainers.add(tagMap);
       } else if (lastContainer is Map) {
         Map container = lastContainer;
         Map map = {};
         container[name] = map;
         _containers.add(map);
+
+        Map tagContainer = _getTagMapContainer();
+        Map tagMap = {};
+        tagContainer[name] = tagMap;
+        _tagMapContainers.add(tagMap);
       }
     } else {
       _metadata[name] = {};
       _containers.add(_metadata[name]);
+
+      _tagMap[name] = {};
+      _tagMapContainers.add(_tagMap[name]);
     }
   }
 
   void enterListContainer(String name) {
     assert(!_metadata.containsKey(name),
         'The same boundary key[$name] already exists.');
-    final lastContainer = getContainer();
+    final lastContainer = _getContainer();
     if (lastContainer != null) {
       if (lastContainer is List) {
         List container = lastContainer;
         List list = [];
         container.add(list);
         _containers.add(list);
+
+        List tagContainer = _getTagMapContainer();
+        List tagList = [];
+        tagContainer.add(tagList);
+        _tagMapContainers.add(tagList);
       } else if (lastContainer is Map) {
         Map container = lastContainer;
         List list = [];
         container[name] = list;
         _containers.add(list);
+
+        Map tagContainer = _getTagMapContainer();
+        List tagList = [];
+        tagContainer[name] = tagList;
+        _tagMapContainers.add(tagList);
       }
     } else {
       _metadata[name] = [];
       _containers.add(_metadata[name]);
+
+      _tagMap[name] = [];
+      _tagMapContainers.add(_tagMap[name]);
     }
   }
 
   void leaveContainer() {
     if (_hasContainer) {
       _containers.removeLast();
+      _tagMapContainers.removeLast();
     }
   }
 
   Map<String, dynamic> toTagMap() {
-    return _metadata;
+    return _tagMap;
   }
 
   @override
@@ -141,8 +195,7 @@ class _ID3MetadataValue {
 
   @override
   String toString() {
-    final ret = desc != null ? "$value[$desc]" : "$value";
-    return "$ret";
+    return desc != null ? "$value[$desc]" : "$value";
   }
 }
 

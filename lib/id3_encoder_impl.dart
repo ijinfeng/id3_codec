@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:id3_codec/byte_codec.dart';
 import 'package:id3_codec/byte_util.dart';
 import 'package:id3_codec/content_editor.dart';

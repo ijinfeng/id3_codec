@@ -28,6 +28,10 @@ An ID3 tag information codec library based on dart, which supports the operation
 - [x] v2.3
 - [x] v2.4
 
+## Update record
+
+You can read [CHANGELOG](https://github.com/ijinfeng/id3_codec/blob/main/CHANGELOG.md) for detailed update information.
+
 ## Install
 
 Depend on it
@@ -42,7 +46,7 @@ This will add a line like this to your package's pubspec.yaml (and run an implic
 
 ```dart
 dependencies:
-  id3_codec: ^0.0.3
+  id3_codec: ^0.0.9
 ```
 
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more.

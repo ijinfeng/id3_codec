@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // assets/song1.mp3 ID3v2.3
     // assets/song2.mp3
     // assets/dafang.mp3
-    rootBundle.load("assets/song3.mp3").then((value) {
+    rootBundle.load("assets/song1.mp3").then((value) {
       bytes = value.buffer.asUint8List();
     });
     // bytes = [0x11, 0x22, 0x33];
@@ -118,14 +118,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () async {
                   final header = await rootBundle.load("assets/wx_header.png");
                   final headerBytes = header.buffer.asUint8List();
-
+                  // 
+                  final al = {"picUrl":"http://p3.music.126.net/GpnLproqUUyc4xmYKpRFcQ==/109951166516282895.jpg"};
                   final encoder = ID3Encoder(bytes);
 // ignore: prefer_const_constructors
                   bytes = encoder.encodeSync(MetadataV2_3Body(
                     title: '听我说谢谢你！',
                     imageBytes: headerBytes,
                     artist: '歌手ijinfeng',
-                    userDefines: {"时长": '2:48', "userId": "ijinfeng"},
+                    userDefines: {
+                      "al": al.toString()
+                    },
                     album: 'ijinfeng出产的专辑',
                   ));
                   debugPrint("---2.3编码成功");

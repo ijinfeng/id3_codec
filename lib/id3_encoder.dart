@@ -33,5 +33,24 @@ class ID3Encoder {
     }
     return _bytes;
   }
+
+  /// asynchronous encoding id3
+  /// - data: ID3 tag metadata information, you can set ID3v1/v1.1 or ID3v2.3 or ID3v2.4 metadataBody, 
+  /// but not support ID3v2.2
+  /// 
+  /// ```dart
+  /// final encoder = ID3Encoder(bytes);
+  /// final resultBytes = await encoder.encodeAsync(MetadataV2_3Body(
+  ///             title: '听我说谢谢你！',
+  ///             artist: '歌手ijinfeng',
+  ///             userDefines: {"时长": '2:48', "userId": "ijinfeng"},
+  ///             album: 'ijinfeng出产的专辑',
+  ///         ));
+  /// ```
+  Future<List<int>> encodeAsync(MetadataEditable data) {
+    return Future(() {
+      return encodeSync(data);
+    });
+  }
 }
 

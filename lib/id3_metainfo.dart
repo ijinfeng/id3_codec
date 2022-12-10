@@ -9,6 +9,11 @@ class ID3MetataInfo {
 
   MetadataRange range = MetadataRange();
 
+  /// Obtain id3 tag information in the form of a dictionary.
+  Map<String, dynamic> toTagMap() {
+    return _tagMap;
+  }
+
   bool get _hasContainer => _containers.isNotEmpty;
 
   void setRangeStart(int start) {
@@ -144,10 +149,6 @@ class ID3MetataInfo {
       _containers.removeLast();
       _tagMapContainers.removeLast();
     }
-  }
-
-  Map<String, dynamic> toTagMap() {
-    return _tagMap;
   }
 
   @override

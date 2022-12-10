@@ -7,6 +7,16 @@ class ID3Decoder {
   final List<int> _bytes;
   bool get isEmpty => _bytes.isEmpty;
 
+  /// synchronous decoding.
+  /// Read the ID3 in the audio file and return ID3MetataInfo object information.
+  /// 
+  /// ```dart
+  /// final decoder = ID3Decoder(bytes);
+  /// final metadatas = decoder.decodeSync();
+  /// for (var metadata in metadatas) {
+  ///     debugPrint(metadata.toTagMap().toString());
+  /// }
+  /// ```
   List<ID3MetataInfo> decodeSync() {
     assert(!isEmpty, 'id3 data is empty');
     if (isEmpty) return [];
@@ -28,6 +38,16 @@ class ID3Decoder {
     return metadatas;
   }
 
+  /// asynchronous decoding.
+  /// Read the ID3 in the audio file and return ID3MetataInfo object information.
+  /// 
+  /// ```dart
+  /// final decoder = ID3Decoder(bytes);
+  /// final metadatas = await decoder.decodeAsync();
+  /// for (var metadata in metadatas) {
+  ///     debugPrint(metadata.toTagMap().toString());
+  /// }
+  /// ```
   Future<List<ID3MetataInfo>> decodeAsync() {
     return Future(() {
       return decodeSync();

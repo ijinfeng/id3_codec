@@ -28,3 +28,6 @@
 
 ## 0.0.10
 * [Important] Fix a serious bug on **v2.3**. The timing of this bug is: encode first, then decode, because the high byte of the frame size is 0 when calculating, and the way to calculate the frame size when decoding is that the high byte of the byte is 1. In the end, an invalid string appears, which is caused by the encoder being unable to encode 0x00.
+
+## 1.0.0
+* Improve documentation and comments.

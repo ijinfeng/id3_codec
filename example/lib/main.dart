@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // assets/song1.mp3 ID3v2.3
     // assets/song2.mp3
     // assets/dafang.mp3
-    rootBundle.load("assets/song1.mp3").then((value) {
+    rootBundle.load("assets/song2.mp3").then((value) {
       bytes = value.buffer.asUint8List();
     });
     // bytes = [0x11, 0x22, 0x33];

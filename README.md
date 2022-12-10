@@ -46,7 +46,7 @@ This will add a line like this to your package's pubspec.yaml (and run an implic
 
 ```dart
 dependencies:
-  id3_codec: ^0.0.9
+  id3_codec: ^{lastest version}
 ```
 
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more.

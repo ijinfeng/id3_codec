@@ -1,6 +1,6 @@
 # id3_codec
 
-An ID3 tag information codec library based on dart, which supports the operation of `Flutter` on all platforms. You can easily read the tag information of the audio in detail, or edit the tag information.
+A cross-platform, pure-Dart package for reading and editing ID3 meta data.
 
 ![v1](https://img.shields.io/badge/ID3-v1-green)
 ![v1.1](https://img.shields.io/badge/ID3-v1.1-green)

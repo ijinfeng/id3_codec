@@ -148,29 +148,29 @@ class ID3V2Decoder extends _ID3Decoder {
         ID3Fragment(name: 'Size', length: 4, needDecode: false),
       ];
 
-  List<ID3Fragment> get extendedV2_3Header => [
+  List<ID3Fragment> get extendedV2p3Header => [
         ID3Fragment(name: 'Extended Header Size', length: 4, needDecode: false),
         ID3Fragment(name: 'Extended Flags', length: 2, needDecode: false),
         ID3Fragment(name: 'Size of Padding', length: 4, needDecode: false),
         ID3Fragment(name: 'Total Frame CRC', length: 4, needDecode: false),
       ];
 
-  List<ID3Fragment> get extendedV2_4Header => [
+  List<ID3Fragment> get extendedV2p4Header => [
         ID3Fragment(name: 'Extended Header Size', length: 4, needDecode: false),
         ID3Fragment(name: 'Number of flag bytes', length: 1, needDecode: false),
         ID3Fragment(name: 'Extended Flags', length: 1, needDecode: false),
       ];
 
-  List<ID3Fragment> get frameV2_3 => [
+  List<ID3Fragment> get frameV2p3 => [
         ID3Fragment(name: 'Frame ID', length: 4),
         ID3Fragment(name: 'Frame Size', length: 4, needDecode: false),
         ID3Fragment(name: 'Frame Flags', length: 2, needDecode: false)
         // Content
       ];
 
-  List<ID3Fragment> get frameV2_4 => frameV2_3;
+  List<ID3Fragment> get frameV2p4 => frameV2p3;
 
-  List<ID3Fragment> get frameV2_2 => [
+  List<ID3Fragment> get frameV2p2 => [
         ID3Fragment(name: 'Frame ID', length: 3),
         ID3Fragment(name: 'Frame Size', length: 3, needDecode: false)
         // Content
@@ -387,53 +387,53 @@ class ID3V2Decoder extends _ID3Decoder {
     return start;
   }
 
-  int _parseV2_3ExtendedHeader(int start) {
+  int _parseV2p3ExtendedHeader(int start) {
     // Extended Header Size
-    final extendedSizeBytes = readValue(extendedV2_3Header[0], start);
-    start += extendedV2_3Header[0].length;
+    final extendedSizeBytes = readValue(extendedV2p3Header[0], start);
+    start += extendedV2p3Header[0].length;
     _extendedSize = ByteUtil.calH1Size(extendedSizeBytes);
     // Where the 'Extended header size', currently 6 or 10 bytes, excludes
     // itself. 
     // So me need to add 4 bytes.
     _extendedSize += 4;
-    metadata.set(value: _extendedSize, key: extendedV2_3Header[0].name);
+    metadata.set(value: _extendedSize, key: extendedV2p3Header[0].name);
 
     // Extended Flags
-    final extendedFlags = readValue(extendedV2_3Header[1], start);
-    start += extendedV2_3Header[1].length;
+    final extendedFlags = readValue(extendedV2p3Header[1], start);
+    start += extendedV2p3Header[1].length;
     bool crc = (extendedFlags.first & 0x80) != 0;
-    metadata.set(value: "CRC-32[$crc]", key: extendedV2_3Header[1].name);
+    metadata.set(value: "CRC-32[$crc]", key: extendedV2p3Header[1].name);
 
     // Size of Padding
-    final paddingBytes = readValue(extendedV2_3Header[2], start);
-    start += extendedV2_3Header[2].length;
+    final paddingBytes = readValue(extendedV2p3Header[2], start);
+    start += extendedV2p3Header[2].length;
     _paddingSize = ByteUtil.calH1Size(paddingBytes);
-    metadata.set(value: _paddingSize, key: extendedV2_3Header[2].name);
+    metadata.set(value: _paddingSize, key: extendedV2p3Header[2].name);
 
     // Total Frame CRC
     if (crc) {
-      final totalFrameCRC = readValue(extendedV2_3Header[3], start);
-      start += extendedV2_3Header[3].length;
+      final totalFrameCRC = readValue(extendedV2p3Header[3], start);
+      start += extendedV2p3Header[3].length;
       metadata.set(
           value: '$totalFrameCRC[Not Support]',
-          key: extendedV2_3Header[3].name);
+          key: extendedV2p3Header[3].name);
     }
     return start;
   }
 
-  int _parseV2_4ExtendedHeader(int start) {
+  int _parseV2p4ExtendedHeader(int start) {
     // Extended header size   4 * %0xxxxxxx
     // Where the 'Extended header size' is the size of the whole extended
     // header, stored as a 32 bit synchsafe integer.
-    final extendedSizeBytes = readValue(extendedV2_4Header[0], start);
-    start += extendedV2_4Header[0].length;
+    final extendedSizeBytes = readValue(extendedV2p4Header[0], start);
+    start += extendedV2p4Header[0].length;
     _extendedSize = ByteUtil.calH0Size(extendedSizeBytes);
-    metadata.set(value: _extendedSize, key: extendedV2_4Header[0].name);
+    metadata.set(value: _extendedSize, key: extendedV2p4Header[0].name);
 
     // Number of flag bytes       $01
-    final numberOfFlagBytes = readValue(extendedV2_4Header[1], start);
-    start += extendedV2_4Header[1].length;
-    metadata.set(value: numberOfFlagBytes, key: extendedV2_4Header[1].name);
+    final numberOfFlagBytes = readValue(extendedV2p4Header[1], start);
+    start += extendedV2p4Header[1].length;
+    metadata.set(value: numberOfFlagBytes, key: extendedV2p4Header[1].name);
 
     // Extended Flags             $xx = %0bcd0000
     // There is only one set of extended flags in v2.4
@@ -444,8 +444,8 @@ class ID3V2Decoder extends _ID3Decoder {
     // -----------------------------
     // | Flag content     | xbytes |
     // -----------------------------
-    final extendedFlag = readValue(extendedV2_4Header[2], start);
-    start += extendedV2_4Header[2].length;
+    final extendedFlag = readValue(extendedV2p4Header[2], start);
+    start += extendedV2p4Header[2].length;
 
     /*
       b - Tag is an update
@@ -464,7 +464,7 @@ class ID3V2Decoder extends _ID3Decoder {
       start += 1;
       metadata.set(
           value: b,
-          key: extendedV2_4Header[2].name,
+          key: extendedV2p4Header[2].name,
           desc: 'b - Tag is an update');
     }
 
@@ -487,7 +487,7 @@ class ID3V2Decoder extends _ID3Decoder {
       start += 6;
       metadata.set(
           value: c,
-          key: extendedV2_4Header[2].name,
+          key: extendedV2p4Header[2].name,
           desc: 'c - CRC data present');
     }
     /*
@@ -506,7 +506,7 @@ class ID3V2Decoder extends _ID3Decoder {
     if (d) {
       metadata.set(
           value: d,
-          key: extendedV2_4Header[2].name,
+          key: extendedV2p4Header[2].name,
           desc: 'd - Tag restrictions');
       start += 1;
 
@@ -643,9 +643,9 @@ class ID3V2Decoder extends _ID3Decoder {
     if (!_hasExtendedHeader) return start;
     metadata.enterMapContainer('Extended Header');
     if (_major == '3') {
-      return _parseV2_3ExtendedHeader(start);
+      return _parseV2p3ExtendedHeader(start);
     } else if (_major == '4') {
-      return _parseV2_4ExtendedHeader(start);
+      return _parseV2p4ExtendedHeader(start);
     }
     metadata.leaveContainer();
     return start;
@@ -656,38 +656,38 @@ class ID3V2Decoder extends _ID3Decoder {
     metadata.enterListContainer('Frames');
     int retstart = start;
     if (_major == '2') {
-      retstart = _parseV2_2Frames(start);
+      retstart = _parseV2p2Frames(start);
     } else if (_major == '3') {
-      retstart = _parseV2_3Frames(start);
+      retstart = _parseV2p3Frames(start);
     } else if (_major == '4') {
-      retstart = _parseV2_4Frames(start);
+      retstart = _parseV2p4Frames(start);
     }
     metadata.leaveContainer();
     return retstart;
   }
 
-  int _parseV2_2Frames(int start) {
+  int _parseV2p2Frames(int start) {
     int frameSizes = _size;
     while (frameSizes > 0) {
       // Frame ID
-      final frameID = readValue(frameV2_2[0], start);
+      final frameID = readValue(frameV2p2[0], start);
       if (frameID == isoCodec.decode([0, 0, 0])) {
         break;
       }
-      start += frameV2_2[0].length;
+      start += frameV2p2[0].length;
       metadata.enterMapContainer('Frame[$frameID]');
       metadata.set(
           value: "$frameID",
-          key: frameV2_2[0].name,
-          desc: frameV2_2Map[frameID]);
+          key: frameV2p2[0].name,
+          desc: frameV2p2Map[frameID]);
 
       // Frame Size
-      final frameSizeBytes = readValue(frameV2_2[1], start);
-      start += frameV2_2[1].length;
+      final frameSizeBytes = readValue(frameV2p2[1], start);
+      start += frameV2p2[1].length;
       int frameSize = frameSizeBytes[2] +
           (frameSizeBytes[1] << 8) +
           (frameSizeBytes[0] << 16);
-      metadata.set(value: frameSize, key: frameV2_2[1].name);
+      metadata.set(value: frameSize, key: frameV2p2[1].name);
 
       // Content
       final contentBytes = bytes.sublist(start, start + frameSize);
@@ -696,7 +696,7 @@ class ID3V2Decoder extends _ID3Decoder {
       final content = decoder.decode();
       metadata.set(value: content, key: 'Content');
       // calculate left frame sizes
-      int rframeSize = frameSize + frameV2_2[0].length + frameV2_2[1].length;
+      int rframeSize = frameSize + frameV2p2[0].length + frameV2p2[1].length;
       frameSizes -= rframeSize;
       _totalFrameSize += rframeSize;
 
@@ -705,32 +705,32 @@ class ID3V2Decoder extends _ID3Decoder {
     return start;
   }
 
-  int _parseV2_3Frames(int start) {
+  int _parseV2p3Frames(int start) {
     // This frameSizes means `frame + padding`
     int frameSizes = _size - _extendedSize;
     while (frameSizes > 0) {
       // Frame ID
-      final frameID = readValue(frameV2_3[0], start);
+      final frameID = readValue(frameV2p3[0], start);
       if (frameID == isoCodec.decode([0, 0, 0, 0])) {
         break;
       }
-      start += frameV2_3[0].length;
+      start += frameV2p3[0].length;
       metadata.enterMapContainer('Frame[$frameID]');
       metadata.set(
           value: "$frameID",
-          key: frameV2_3[0].name,
-          desc: frameV2_3Map[frameID]);
+          key: frameV2p3[0].name,
+          desc: frameV2p3Map[frameID]);
 
       // Frame Size
-      final frameSizeBytes = readValue(frameV2_3[1], start);
-      start += frameV2_3[1].length;
+      final frameSizeBytes = readValue(frameV2p3[1], start);
+      start += frameV2p3[1].length;
       int frameSize = ByteUtil.calH1Size(frameSizeBytes);
-      metadata.set(value: frameSize, key: frameV2_3[1].name);
+      metadata.set(value: frameSize, key: frameV2p3[1].name);
 
       // Frame Flags
       // %abc00000 %ijk00000
-      final frameFlags = readValue(frameV2_3[2], start);
-      start += frameV2_3[2].length;
+      final frameFlags = readValue(frameV2p3[2], start);
+      start += frameV2p3[2].length;
       String frameFlagsValue = '';
       // a - Tag alter preservation
       final a = frameFlags[0] & 0x80;
@@ -752,7 +752,7 @@ class ID3V2Decoder extends _ID3Decoder {
       frameFlagsValue = "$frameFlagsValue, k: $k";
       metadata.set(
           value: frameFlagsValue,
-          key: frameV2_3[2].name,
+          key: frameV2p3[2].name,
           desc: '%abc00000 %ijk00000');
 
       // Content
@@ -776,9 +776,9 @@ class ID3V2Decoder extends _ID3Decoder {
       metadata.set(value: content, key: 'Content');
       // calculate left frame sizes
       int rframeSize = frameSize +
-          frameV2_3[0].length +
-          frameV2_3[1].length +
-          frameV2_3[2].length;
+          frameV2p3[0].length +
+          frameV2p3[1].length +
+          frameV2p3[2].length;
       frameSizes -= rframeSize;
       _totalFrameSize += rframeSize;
 
@@ -787,31 +787,31 @@ class ID3V2Decoder extends _ID3Decoder {
     return start;
   }
 
-  int _parseV2_4Frames(int start) {
+  int _parseV2p4Frames(int start) {
     int frameSizes = _size - _extendedSize;
     while (frameSizes > 0) {
       // Frame ID
-      final frameID = readValue(frameV2_4[0], start);
+      final frameID = readValue(frameV2p4[0], start);
       if (frameID == isoCodec.decode([0, 0, 0, 0])) {
         break;
       }
-      start += frameV2_4[0].length;
+      start += frameV2p4[0].length;
       metadata.enterMapContainer('Frame[$frameID]');
       metadata.set(
           value: "$frameID",
-          key: frameV2_4[0].name,
-          desc: frameV2_4Map[frameID]);
+          key: frameV2p4[0].name,
+          desc: frameV2p4Map[frameID]);
 
       // Frame Size
-      final frameSizeBytes = readValue(frameV2_4[1], start);
-      start += frameV2_4[1].length;
+      final frameSizeBytes = readValue(frameV2p4[1], start);
+      start += frameV2p4[1].length;
       int frameSize = ByteUtil.calH0Size(frameSizeBytes);
-      metadata.set(value: frameSize, key: frameV2_4[1].name);
+      metadata.set(value: frameSize, key: frameV2p4[1].name);
 
       // Frame Flags
       // %0abc0000 %0h00kmnp
-      List<int> flagsBytes = readValue(frameV2_4[2], start);
-      start += frameV2_4[2].length;
+      List<int> flagsBytes = readValue(frameV2p4[2], start);
+      start += frameV2p4[2].length;
 
       // Frame status flags
       final statusFlags = flagsBytes.first;
@@ -924,7 +924,7 @@ class ID3V2Decoder extends _ID3Decoder {
       */
       final p = (formatFlags & 0x1);
 
-      String key = frameV2_4[2].name;
+      String key = frameV2p4[2].name;
       if (showDetail) {
         metadata.set(
             value: a,
@@ -989,9 +989,9 @@ class ID3V2Decoder extends _ID3Decoder {
       metadata.set(value: content, key: 'Content');
       // calculate left frame sizes
       int rframeSize = frameSize +
-          frameV2_4[0].length +
-          frameV2_4[1].length +
-          frameV2_4[2].length;
+          frameV2p4[0].length +
+          frameV2p4[1].length +
+          frameV2p4[2].length;
       frameSizes -= rframeSize;
       _totalFrameSize += rframeSize;
 

@@ -14,14 +14,14 @@ class ContentEncoder {
   List<int> encode() {
     assert(body != null, 'Error: the body cant be empty.');    
     if (body is MetadataV2p3Wrapper) {
-      return _encodeMetadataV2_3(body as MetadataV2p3Wrapper);
+      return _encodeMetadataV2p3(body as MetadataV2p3Wrapper);
     } else if (body is MetadataV2p4Wrapper) {
-      return _encodeMetadataV2_4(body as MetadataV2p4Wrapper);
+      return _encodeMetadataV2p4(body as MetadataV2p4Wrapper);
     }
     return [];
   }
 
-  List<int> _encodeMetadataV2_3(MetadataV2p3Wrapper wrapper) {
+  List<int> _encodeMetadataV2p3(MetadataV2p3Wrapper wrapper) {
     List<int> output = [];
     if (wrapper.title.value != null) {
         output
@@ -52,7 +52,7 @@ class ContentEncoder {
       return output;
   }
 
-  List<int> _encodeMetadataV2_4(MetadataV2p4Wrapper wrapper) {
+  List<int> _encodeMetadataV2p4(MetadataV2p4Wrapper wrapper) {
     List<int> output = [];
     if (wrapper.title.value != null) {
         output

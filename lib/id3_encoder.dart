@@ -25,10 +25,10 @@ class ID3Encoder {
       final encoder = ID3V1Encoder(_bytes);
       return encoder.encode(data);
     } else if (data is MetadataV2p3Body)  {
-      final encoder = ID3V2_3Encoder(_bytes);
+      final encoder = ID3V2p3Encoder(_bytes);
       return encoder.encode(data);
     } else if (data is MetadataV2p4Body) {
-      final encoder = ID3V2_4Encoder(_bytes);
+      final encoder = ID3V2p4Encoder(_bytes);
       return encoder.encode(data);
     }
     return _bytes;

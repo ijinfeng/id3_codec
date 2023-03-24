@@ -133,7 +133,7 @@ const List<String> genreList = [
       ];
 
 
-const Map<String, String> frameV2_2Map = {
+const Map<String, String> frameV2p2Map = {
         'BUF': 'Recommended buffer size',
         'CNT': 'Play counter',
         'COM': 'Comments',
@@ -200,7 +200,7 @@ const Map<String, String> frameV2_2Map = {
       };
 
   // https://id3.org/d3v2.3.0
-const Map<String, String> frameV2_3Map = {
+const Map<String, String> frameV2p3Map = {
         'AENC': 'Audio encryption',
         'APIC': 'Attached picture',
         'COMM': 'Comments',
@@ -278,7 +278,7 @@ const Map<String, String> frameV2_3Map = {
       };
 
   // https://id3.org/id3v2.4.0-frames
-const  Map<String, String> frameV2_4Map = {
+const  Map<String, String> frameV2p4Map = {
         'AENC': 'Audio encryption',
         'APIC': 'Attached picture',
         'ASPI': 'Audio seek point ',

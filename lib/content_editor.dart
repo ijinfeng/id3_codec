@@ -17,17 +17,17 @@ class ContentEditor {
       bool compression = false,
       required MetadataEditableWrapper data}) {
     if (data is MetadataV2p3Wrapper) {
-      return _editFrameWithV2_3Data(
+      return _editFrameWithV2p3Data(
           start, frameID, frameSize, compression, data);
     } else if (data is MetadataV2p4Wrapper) {
-      return _editFrameWithV2_4Data(
+      return _editFrameWithV2p4Data(
           start, frameID, frameSize, compression, data);
     }
     return EditorResult.noEdit(
         frameID: frameID, start: start, frameSize: frameSize);
   }
 
-  EditorResult _editFrameWithV2_3Data(int start, String frameID, int frameSize,
+  EditorResult _editFrameWithV2p3Data(int start, String frameID, int frameSize,
       bool compression, MetadataV2p3Wrapper data) {
     if (frameID == 'TIT2' && data.title.value != null) {
       return _editFrameWithProperty(
@@ -54,7 +54,7 @@ class ContentEditor {
         frameID: frameID, start: start, frameSize: frameSize);
   }
 
-  EditorResult _editFrameWithV2_4Data(int start, String frameID, int frameSize,
+  EditorResult _editFrameWithV2p4Data(int start, String frameID, int frameSize,
       bool compression, MetadataV2p4Wrapper data) {
     if (frameID == 'TIT2' && data.title.value != null) {
       return _editFrameWithProperty(

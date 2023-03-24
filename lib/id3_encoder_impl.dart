@@ -99,8 +99,8 @@ class ID3V1Encoder extends _ID3Encoder {
   }
 }
 
-class ID3V2_3Encoder extends _ID3Encoder {
-  ID3V2_3Encoder(super.bytes) : _output = List.from(bytes);
+class ID3V2p3Encoder extends _ID3Encoder {
+  ID3V2p3Encoder(super.bytes) : _output = List.from(bytes);
 
   final List<int> _output;
 
@@ -326,8 +326,8 @@ class ID3V2_3Encoder extends _ID3Encoder {
   }
 }
 
-class ID3V2_4Encoder extends _ID3Encoder {
-  ID3V2_4Encoder(super.bytes) : _output = List.from(bytes);
+class ID3V2p4Encoder extends _ID3Encoder {
+  ID3V2p4Encoder(super.bytes) : _output = List.from(bytes);
 
   final List<int> _output;
 

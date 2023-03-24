@@ -107,9 +107,9 @@ final header = await rootBundle.load("assets/wx_header.png");
 final headerBytes = header.buffer.asUint8List();
 
 final encoder = ID3Encoder(bytes);
-// if you need encode or edit v2.4, just use `MetadataV2_4Body` instead of `MetadataV2_3Body`
+// if you need encode or edit v2.4, just use `MetadataV2p4Body` instead of `MetadataV2p3Body`
 // ignore: prefer_const_constructors
-final resultBytes = encoder.encodeSync(MetadataV2_3Body(
+final resultBytes = encoder.encodeSync(MetadataV2p3Body(
     title: '听我说谢谢你！',
     imageBytes: headerBytes,
     artist: '歌手ijinfeng',

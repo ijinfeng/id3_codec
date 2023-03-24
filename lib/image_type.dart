@@ -16,6 +16,7 @@ class ImageCodec {
       }
       return true;
     }
+
     if (equal(typeBytes, [0xFF, 0xD8])) {
       return "image/jpeg";
     } else if (equal(typeBytes, [0x89, 0x50])) {
@@ -24,7 +25,8 @@ class ImageCodec {
       return "image/gif";
     } else if (equal(typeBytes, [0x42, 0x4D])) {
       return "image/bmp";
-    } else if (equal(typeBytes, [0x4D, 0x4D]) || equal(typeBytes, [0x49, 0x49])) {
+    } else if (equal(typeBytes, [0x4D, 0x4D]) ||
+        equal(typeBytes, [0x49, 0x49])) {
       return "image/tiff";
     } else {
       return "";

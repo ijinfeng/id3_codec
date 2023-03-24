@@ -73,7 +73,7 @@ class ByteCodec {
   }
 
   // BE 即 big-endian，大端的意思。大端就是将高位的字节放在低地址表示
-  String _decodeWithUTF16BE(List<int> bytes) {    
+  String _decodeWithUTF16BE(List<int> bytes) {
     final utf16bes = List.generate((bytes.length / 2).ceil(), (index) => 0);
 
     for (int i = 0; i < bytes.length; i++) {
@@ -136,8 +136,8 @@ class ByteCodec {
     List<int> _terminator;
     if (terminator == null || terminator.isEmpty == true) {
       if (codecType == ByteCodecType.UTF16 ||
-      codecType == ByteCodecType.UTF16BE ||
-      codecType == ByteCodecType.UTF16LE) {
+          codecType == ByteCodecType.UTF16BE ||
+          codecType == ByteCodecType.UTF16LE) {
         _terminator = [0x00, 0x00];
       } else {
         _terminator = [0x00];
@@ -145,7 +145,8 @@ class ByteCodec {
     } else {
       _terminator = terminator;
     }
-    if (_terminator.isEmpty || _terminator.length > bytes.length) return SubBytes.o(bytes);
+    if (_terminator.isEmpty || _terminator.length > bytes.length)
+      return SubBytes.o(bytes);
     int findTerminatorIndex = 0;
     for (int i = 0; i < bytes.length; i = i + _terminator.length) {
       final sub = bytes.sublist(i, i + _terminator.length);
@@ -161,7 +162,9 @@ class ByteCodec {
         break;
       }
     }
-    final subBytes = findTerminatorIndex > 0 ? bytes.sublist(0, findTerminatorIndex - _terminator.length) : bytes;
+    final subBytes = findTerminatorIndex > 0
+        ? bytes.sublist(0, findTerminatorIndex - _terminator.length)
+        : bytes;
     if (findTerminatorIndex > 0) {
       return SubBytes(bytes: subBytes, terminator: _terminator);
     } else {
@@ -169,28 +172,33 @@ class ByteCodec {
     }
   }
 
-  List<int> encode(String string, {int? limitByteLength, ByteCodecType? forceType}) {
+  List<int> encode(String string,
+      {int? limitByteLength, ByteCodecType? forceType}) {
     final decodeType = forceType ?? codecType;
     if (decodeType == ByteCodecType.ISO_8859_1) {
-      return transferToLength(latin1.encode(string), byteLength: limitByteLength);
+      return transferToLength(latin1.encode(string),
+          byteLength: limitByteLength);
     } else if (decodeType == ByteCodecType.UTF16) {
       final bytes = _encodeWithUTF16(string);
       if (limitByteLength != null) {
-        return transferToLength(bytes, byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
+        return transferToLength(bytes,
+            byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
       } else {
         return bytes;
       }
     } else if (decodeType == ByteCodecType.UTF16BE) {
       final bytes = _encodeWithUTF16BE(string);
       if (limitByteLength != null) {
-        return transferToLength(bytes, byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
+        return transferToLength(bytes,
+            byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
       } else {
         return bytes;
       }
     } else if (decodeType == ByteCodecType.UTF16LE) {
       final bytes = _encodeWithUTF16LE(string);
       if (limitByteLength != null) {
-        return transferToLength(bytes, byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
+        return transferToLength(bytes,
+            byteLength: limitByteLength + (limitByteLength % 2 != 0 ? 1 : 0));
       } else {
         return bytes;
       }
@@ -218,10 +226,7 @@ class ByteCodec {
 }
 
 class SubBytes {
-  SubBytes({
-    required this.bytes,
-    required this.terminator
-  });
+  SubBytes({required this.bytes, required this.terminator});
 
   SubBytes.o(this.bytes) : terminator = [];
 
@@ -247,7 +252,7 @@ class HexOutput {
       hex = "$_prfix$hex";
       if (output.isNotEmpty) {
         output += _slice;
-      } 
+      }
       output += hex;
     }
     return output;

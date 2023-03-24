@@ -12,7 +12,7 @@ class ContentEncoder {
 
   /// encode `MetadataV2Body` to bytes
   List<int> encode() {
-    assert(body != null, 'Error: the body cant be empty.');    
+    assert(body != null, 'Error: the body cant be empty.');
     if (body is MetadataV2p3Wrapper) {
       return _encodeMetadataV2p3(body as MetadataV2p3Wrapper);
     } else if (body is MetadataV2p4Wrapper) {
@@ -24,63 +24,95 @@ class ContentEncoder {
   List<int> _encodeMetadataV2p3(MetadataV2p3Wrapper wrapper) {
     List<int> output = [];
     if (wrapper.title.value != null) {
-        output
-            .addAll(encodeProperty(frameID: 'TIT2', property: wrapper.title, fillHeader: true, sizeH0: false));
+      output.addAll(encodeProperty(
+          frameID: 'TIT2',
+          property: wrapper.title,
+          fillHeader: true,
+          sizeH0: false));
+    }
+    if (wrapper.artist.value != null) {
+      output.addAll(encodeProperty(
+          frameID: 'TPE1',
+          property: wrapper.artist,
+          fillHeader: true,
+          sizeH0: false));
+    }
+    if (wrapper.album.value != null) {
+      output.addAll(encodeProperty(
+          frameID: 'TALB',
+          property: wrapper.album,
+          fillHeader: true,
+          sizeH0: false));
+    }
+    if (wrapper.encoding.value != null) {
+      output.addAll(encodeProperty(
+          frameID: 'TSSE',
+          property: wrapper.encoding,
+          fillHeader: true,
+          sizeH0: false));
+    }
+    if (wrapper.userDefines.value != null) {
+      for (final entry in wrapper.userDefines.value!) {
+        output.addAll(encodeProperty(
+            frameID: 'TXXX', property: entry, fillHeader: true, sizeH0: false));
       }
-      if (wrapper.artist.value != null) {
-        output
-            .addAll(encodeProperty(frameID: 'TPE1', property: wrapper.artist, fillHeader: true, sizeH0: false));
-      }
-      if (wrapper.album.value != null) {
-        output
-            .addAll(encodeProperty(frameID: 'TALB', property: wrapper.album, fillHeader: true, sizeH0: false));
-      }
-      if (wrapper.encoding.value != null) {
-        output.addAll(
-            encodeProperty(frameID: 'TSSE', property: wrapper.encoding, fillHeader: true, sizeH0: false));
-      }
-      if (wrapper.userDefines.value != null) {
-        for (final entry in wrapper.userDefines.value!) {
-          output.addAll(encodeProperty(frameID: 'TXXX', property: entry, fillHeader: true, sizeH0: false));
-        }
-      }
-      if (wrapper.imageBytes.value != null &&
-          ImageCodec.getImageMimeType(wrapper.imageBytes.value!).isNotEmpty) {
-        output.addAll(
-            encodeProperty(frameID: 'APIC', property: wrapper.imageBytes, fillHeader: true, sizeH0: false));
-      }
-      return output;
+    }
+    if (wrapper.imageBytes.value != null &&
+        ImageCodec.getImageMimeType(wrapper.imageBytes.value!).isNotEmpty) {
+      output.addAll(encodeProperty(
+          frameID: 'APIC',
+          property: wrapper.imageBytes,
+          fillHeader: true,
+          sizeH0: false));
+    }
+    return output;
   }
 
   List<int> _encodeMetadataV2p4(MetadataV2p4Wrapper wrapper) {
     List<int> output = [];
     if (wrapper.title.value != null) {
-        output
-            .addAll(encodeProperty(frameID: 'TIT2', property: wrapper.title, fillHeader: true, sizeH0: true));
+      output.addAll(encodeProperty(
+          frameID: 'TIT2',
+          property: wrapper.title,
+          fillHeader: true,
+          sizeH0: true));
+    }
+    if (wrapper.artist.value != null) {
+      output.addAll(encodeProperty(
+          frameID: 'TPE1',
+          property: wrapper.artist,
+          fillHeader: true,
+          sizeH0: true));
+    }
+    if (wrapper.album.value != null) {
+      output.addAll(encodeProperty(
+          frameID: 'TALB',
+          property: wrapper.album,
+          fillHeader: true,
+          sizeH0: true));
+    }
+    if (wrapper.encoding.value != null) {
+      output.addAll(encodeProperty(
+          frameID: 'TSSE',
+          property: wrapper.encoding,
+          fillHeader: true,
+          sizeH0: true));
+    }
+    if (wrapper.userDefines.value != null) {
+      for (final entry in wrapper.userDefines.value!) {
+        output.addAll(encodeProperty(
+            frameID: 'TXXX', property: entry, fillHeader: true, sizeH0: true));
       }
-      if (wrapper.artist.value != null) {
-        output
-            .addAll(encodeProperty(frameID: 'TPE1', property: wrapper.artist, fillHeader: true, sizeH0: true));
-      }
-      if (wrapper.album.value != null) {
-        output
-            .addAll(encodeProperty(frameID: 'TALB', property: wrapper.album, fillHeader: true, sizeH0: true));
-      }
-      if (wrapper.encoding.value != null) {
-        output.addAll(
-            encodeProperty(frameID: 'TSSE', property: wrapper.encoding, fillHeader: true, sizeH0: true));
-      }
-      if (wrapper.userDefines.value != null) {
-        for (final entry in wrapper.userDefines.value!) {
-          output.addAll(encodeProperty(frameID: 'TXXX', property: entry, fillHeader: true, sizeH0: true));
-        }
-      }
-      if (wrapper.imageBytes.value != null &&
-          ImageCodec.getImageMimeType(wrapper.imageBytes.value!).isNotEmpty) {
-        output.addAll(
-            encodeProperty(frameID: 'APIC', property: wrapper.imageBytes, fillHeader: true, sizeH0: true));
-      }
-      return output;
+    }
+    if (wrapper.imageBytes.value != null &&
+        ImageCodec.getImageMimeType(wrapper.imageBytes.value!).isNotEmpty) {
+      output.addAll(encodeProperty(
+          frameID: 'APIC',
+          property: wrapper.imageBytes,
+          fillHeader: true,
+          sizeH0: true));
+    }
+    return output;
   }
 
   /// Encode the content corresponding to frameID. If you set `fillHeader: true`, the result is all frame [frame Header + content] bytes.
@@ -151,19 +183,23 @@ class _TextInfomationEncoder extends _ContentEncoder {
     List<int> output = [];
 
     // set text encoding 'UTF16'
-    final defaultTextEncoding = (tagRestrictions != null && tagRestrictions.textEncodingR == 0x01) ? 0x03 : 0x01;
+    final defaultTextEncoding =
+        (tagRestrictions != null && tagRestrictions.textEncodingR == 0x01)
+            ? 0x03
+            : 0x01;
     final codec = ByteCodec(textEncodingByte: defaultTextEncoding);
 
     // text encoding
     output.add(defaultTextEncoding);
 
     // information
-    if (tagRestrictions != null 
-    && tagRestrictions.textFieldsSizeR != 0x00
-    && content.length > tagRestrictions.textFieldsSize) {
-      debugPrint("Encode error: Tag restrictions for textFieldsSize is ${tagRestrictions.textFieldsSize}, but the length of 'content' in [_TextInfomationEncoder] is ${content.length}");
+    if (tagRestrictions != null &&
+        tagRestrictions.textFieldsSizeR != 0x00 &&
+        content.length > tagRestrictions.textFieldsSize) {
+      debugPrint(
+          "Encode error: Tag restrictions for textFieldsSize is ${tagRestrictions.textFieldsSize}, but the length of 'content' in [_TextInfomationEncoder] is ${content.length}");
       return [];
-    } 
+    }
     final infoBytes = codec.encode(content);
     output.addAll(infoBytes);
 
@@ -186,28 +222,33 @@ class _TXXXEncoder extends _ContentEncoder {
     List<int> output = [];
 
     // set text encoding 'UTF16'
-    final defaultTextEncoding = (tagRestrictions != null && tagRestrictions.textEncodingR == 0x01) ? 0x03 : 0x01;
+    final defaultTextEncoding =
+        (tagRestrictions != null && tagRestrictions.textEncodingR == 0x01)
+            ? 0x03
+            : 0x01;
     final codec = ByteCodec(textEncodingByte: defaultTextEncoding);
 
     // text encoding
     output.add(defaultTextEncoding);
 
     // Description
-    if (tagRestrictions != null 
-    && tagRestrictions.textFieldsSizeR != 0x00
-    && content.key.length > tagRestrictions.textFieldsSize) {
-      debugPrint("Encode error: Tag restrictions for textFieldsSize is ${tagRestrictions.textFieldsSize}, but the length of 'content.key' in [_TXXXEncoder] is ${content.key.length}");
+    if (tagRestrictions != null &&
+        tagRestrictions.textFieldsSizeR != 0x00 &&
+        content.key.length > tagRestrictions.textFieldsSize) {
+      debugPrint(
+          "Encode error: Tag restrictions for textFieldsSize is ${tagRestrictions.textFieldsSize}, but the length of 'content.key' in [_TXXXEncoder] is ${content.key.length}");
       return [];
-    } 
+    }
     final decBytes = codec.encode(content.key);
     output.addAll(decBytes);
     output.addAll([0x00, 0x00]);
 
     // Value
-    if (tagRestrictions != null 
-    && tagRestrictions.textFieldsSizeR != 0x00
-    && content.value.length > tagRestrictions.textFieldsSize) {
-      debugPrint("Encode error: Tag restrictions for textFieldsSize is ${tagRestrictions.textFieldsSize}, but the length of 'content.value' in [_TXXXEncoder] is ${content.value.length}");
+    if (tagRestrictions != null &&
+        tagRestrictions.textFieldsSizeR != 0x00 &&
+        content.value.length > tagRestrictions.textFieldsSize) {
+      debugPrint(
+          "Encode error: Tag restrictions for textFieldsSize is ${tagRestrictions.textFieldsSize}, but the length of 'content.value' in [_TXXXEncoder] is ${content.value.length}");
       return [];
     }
     final valueBytes = codec.encode(content.value);
@@ -233,21 +274,24 @@ class _APICEncoder extends _ContentEncoder {
     List<int> output = [];
 
     // set text encoding 'ISO_8859_1'
-    final defaultTextEncoding = (tagRestrictions != null && tagRestrictions.textEncodingR == 0x01) ? 0x03 : 0x00;
+    final defaultTextEncoding =
+        (tagRestrictions != null && tagRestrictions.textEncodingR == 0x01)
+            ? 0x03
+            : 0x00;
 
     // text encoding
     output.add(defaultTextEncoding);
 
     // MIME type
     String mimeType = ImageCodec.getImageMimeType(content);
-    if (tagRestrictions != null 
-    && tagRestrictions.imageEncodingR != 0 
-    && (mimeType != 'image/png' && mimeType != 'image/jpeg')) {
-      debugPrint("Encode error: Tag restrictions for 'image encoding' is png or jpeg, but the mimetype of image is $mimeType}");
+    if (tagRestrictions != null &&
+        tagRestrictions.imageEncodingR != 0 &&
+        (mimeType != 'image/png' && mimeType != 'image/jpeg')) {
+      debugPrint(
+          "Encode error: Tag restrictions for 'image encoding' is png or jpeg, but the mimetype of image is $mimeType}");
       return [];
     }
-    final mimeBytes =
-        isoCodec.encode(mimeType);
+    final mimeBytes = isoCodec.encode(mimeType);
     output.addAll(mimeBytes);
     output.add(0x00);
 
@@ -258,7 +302,7 @@ class _APICEncoder extends _ContentEncoder {
     // Description
     output.addAll([0x00]);
 
-    // Picture data 
+    // Picture data
     // TODO:Image size restrictions
     output.addAll(content);
 

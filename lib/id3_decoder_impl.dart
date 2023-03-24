@@ -185,7 +185,7 @@ class ID3V2Decoder extends _ID3Decoder {
   /// The Extended Header Size field holds the Size of the Extended Header,
   ///  including the 4 bytes of the Extended Header Size field itself.
   /// This is different in v2.3 and v2.4.
-  /// 
+  ///
   /// But here `_extendedSize` represents the whole extended header.
   int _extendedSize = 0;
 
@@ -393,7 +393,7 @@ class ID3V2Decoder extends _ID3Decoder {
     start += extendedV2p3Header[0].length;
     _extendedSize = ByteUtil.calH1Size(extendedSizeBytes);
     // Where the 'Extended header size', currently 6 or 10 bytes, excludes
-    // itself. 
+    // itself.
     // So me need to add 4 bytes.
     _extendedSize += 4;
     metadata.set(value: _extendedSize, key: extendedV2p3Header[0].name);

@@ -42,7 +42,7 @@ class ID3MetataInfo {
     } else {
       return null;
     }
-  } 
+  }
 
   _unwrapperValue(dynamic value) {
     if (value is FrameContent) {
@@ -165,7 +165,7 @@ class ID3MetataInfo {
         if (value is Map) {
           for (var element in value.entries) {
             final key = element.key;
-            final value = element.value;  
+            final value = element.value;
             ret += tranferValue(value, key);
           }
         } else if (value is List) {
@@ -212,6 +212,6 @@ class MetadataRange {
 
   @override
   String toString() {
-    return "{$_start, ${_start+_length}}";
+    return "{$_start, ${_start + _length}}";
   }
 }

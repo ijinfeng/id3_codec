@@ -252,7 +252,8 @@ class ID3V2p3Encoder extends _ID3Encoder {
       if (attachedBytes.isNotEmpty) {
         // The remaining space is not enough and needs to be expanded
         if (remainingSize < attachedBytes.length) {
-          final expansionSize = attachedBytes.length - remainingSize + _defaultPadding.length;
+          final expansionSize =
+              attachedBytes.length - remainingSize + _defaultPadding.length;
           _output.insertAll(
               start + remainingSize, List.filled(expansionSize, 0x00));
 
@@ -430,7 +431,7 @@ class ID3V2p4Encoder extends _ID3Encoder {
       // reset flags
       _output.replaceRange(_calSizeStart - 1, _calSizeStart, [0x00]);
 
-      // no extended header 
+      // no extended header
 
       // Frames
       final contentEncoder = ContentEncoder(body: MetadataV2p4Wrapper(data));
@@ -499,7 +500,8 @@ class ID3V2p4Encoder extends _ID3Encoder {
     // remaining size = frames + padding[it MUST NOT have any padding when a tag footer is added to the tag.]
     int remainingSize = _size - _extendedSize;
     final editor = ContentEditor(bytes: _output);
-    final wrapperData = MetadataV2p4Wrapper(data, tagRestrictions: _tagRestrictions);
+    final wrapperData =
+        MetadataV2p4Wrapper(data, tagRestrictions: _tagRestrictions);
 
     // Edit an existing frame that needs to be modified
     while (remainingSize > 0) {
@@ -551,7 +553,9 @@ class ID3V2p4Encoder extends _ID3Encoder {
       if (attachedBytes.isNotEmpty) {
         // The remaining space is not enough and needs to be expanded
         if (remainingSize < attachedBytes.length) {
-          final expansionSize = attachedBytes.length - remainingSize + (_hasFooter ? 0 : _defaultPadding.length);
+          final expansionSize = attachedBytes.length -
+              remainingSize +
+              (_hasFooter ? 0 : _defaultPadding.length);
           _output.insertAll(
               start + remainingSize, List.filled(expansionSize, 0x00));
 

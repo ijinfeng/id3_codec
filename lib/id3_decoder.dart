@@ -9,7 +9,7 @@ class ID3Decoder {
 
   /// synchronous decoding.
   /// Read the ID3 in the audio file and return ID3MetataInfo object information.
-  /// 
+  ///
   /// ```dart
   /// final decoder = ID3Decoder(bytes);
   /// final metadatas = decoder.decodeSync();
@@ -30,7 +30,8 @@ class ID3Decoder {
     }
 
     // parse ID3v2
-    final id3v2 = ID3V2Decoder(retv1 ? _bytes.sublist(0, _bytes.length - id3v1.totalLength) : _bytes);
+    final id3v2 = ID3V2Decoder(
+        retv1 ? _bytes.sublist(0, _bytes.length - id3v1.totalLength) : _bytes);
     final retv2 = id3v2.convert();
     if (retv2) {
       metadatas.add(id3v2.metadata);
@@ -40,7 +41,7 @@ class ID3Decoder {
 
   /// asynchronous decoding.
   /// Read the ID3 in the audio file and return ID3MetataInfo object information.
-  /// 
+  ///
   /// ```dart
   /// final decoder = ID3Decoder(bytes);
   /// final metadatas = await decoder.decodeAsync();

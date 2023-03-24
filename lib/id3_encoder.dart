@@ -8,9 +8,9 @@ class ID3Encoder {
   final List<int> _bytes;
 
   /// synchronous encoding id3
-  /// - data: ID3 tag metadata information, you can set ID3v1/v1.1 or ID3v2.3 or ID3v2.4 metadataBody, 
+  /// - data: ID3 tag metadata information, you can set ID3v1/v1.1 or ID3v2.3 or ID3v2.4 metadataBody,
   /// but not support ID3v2.2
-  /// 
+  ///
   /// ```dart
   /// final encoder = ID3Encoder(bytes);
   /// final resultBytes = encoder.encodeSync(MetadataV2p3Body(
@@ -24,7 +24,7 @@ class ID3Encoder {
     if (data is MetadataV1Body) {
       final encoder = ID3V1Encoder(_bytes);
       return encoder.encode(data);
-    } else if (data is MetadataV2p3Body)  {
+    } else if (data is MetadataV2p3Body) {
       final encoder = ID3V2p3Encoder(_bytes);
       return encoder.encode(data);
     } else if (data is MetadataV2p4Body) {
@@ -35,9 +35,9 @@ class ID3Encoder {
   }
 
   /// asynchronous encoding id3
-  /// - data: ID3 tag metadata information, you can set ID3v1/v1.1 or ID3v2.3 or ID3v2.4 metadataBody, 
+  /// - data: ID3 tag metadata information, you can set ID3v1/v1.1 or ID3v2.3 or ID3v2.4 metadataBody,
   /// but not support ID3v2.2
-  /// 
+  ///
   /// ```dart
   /// final encoder = ID3Encoder(bytes);
   /// final resultBytes = await encoder.encodeAsync(MetadataV2p3Body(
@@ -53,4 +53,3 @@ class ID3Encoder {
     });
   }
 }
-

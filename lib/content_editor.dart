@@ -58,36 +58,47 @@ class ContentEditor {
       bool compression, MetadataV2p4Wrapper data) {
     if (frameID == 'TIT2' && data.title.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.title, tagRestrictions: data.tagRestrictions);
+          start, frameID, frameSize, compression, data.title,
+          tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'TXXX' && data.userDefines.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.userDefines, tagRestrictions: data.tagRestrictions);
+          start, frameID, frameSize, compression, data.userDefines,
+          tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'TPE1' && data.artist.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.artist, tagRestrictions: data.tagRestrictions);
+          start, frameID, frameSize, compression, data.artist,
+          tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'TALB' && data.album.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.album, tagRestrictions: data.tagRestrictions);
+          start, frameID, frameSize, compression, data.album,
+          tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'TSSE' && data.encoding.value != null) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.encoding, tagRestrictions: data.tagRestrictions);
+          start, frameID, frameSize, compression, data.encoding,
+          tagRestrictions: data.tagRestrictions);
     } else if (frameID == 'APIC' &&
         data.imageBytes.value != null &&
         ImageCodec.getImageMimeType(data.imageBytes.value!).isNotEmpty) {
       return _editFrameWithProperty(
-          start, frameID, frameSize, compression, data.imageBytes, tagRestrictions: data.tagRestrictions);
+          start, frameID, frameSize, compression, data.imageBytes,
+          tagRestrictions: data.tagRestrictions);
     }
     return EditorResult.noEdit(
         frameID: frameID, start: start, frameSize: frameSize);
   }
 
   EditorResult _editFrameWithProperty(int start, String frameID, int frameSize,
-      bool compression, MetadataProperty property, {TagRestrictions? tagRestrictions}) {
+      bool compression, MetadataProperty property,
+      {TagRestrictions? tagRestrictions}) {
     final contentEncoder = ContentEncoder();
-    List<int> contentBytes =
-        contentEncoder.encodeProperty(frameID: frameID, property: property, fillHeader: false, tagRestrictions: tagRestrictions);
+    List<int> contentBytes = contentEncoder.encodeProperty(
+        frameID: frameID,
+        property: property,
+        fillHeader: false,
+        tagRestrictions: tagRestrictions);
     if (contentBytes.isEmpty) {
-      return EditorResult.noEdit(frameID: frameID, start: start, frameSize: frameSize);
+      return EditorResult.noEdit(
+          frameID: frameID, start: start, frameSize: frameSize);
     }
     if (compression) {
       // store 'decompressed size' in 4 bytes
@@ -113,7 +124,7 @@ class ContentEditor {
     // recalculate content size
     frameSize = contentLength;
     List<int> sizeBytes = ByteUtil.toH1Bytes(frameSize);
-    
+
     // 6 = size(4 bytes) + flags(2 bytes)
     int frameSizeStart = start - 6;
     bytes.replaceRange(frameSizeStart, frameSizeStart + 4, sizeBytes);

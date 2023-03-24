@@ -32,8 +32,7 @@ class ContentDecoder {
       _decoder = _SYLTDecoder(frameID);
     } else if (frameID == 'GEOB' || frameID == 'GEO') {
       _decoder = _GEOBDecoder(frameID);
-    }
-    else {
+    } else {
       _decoder = _UnsupportedDecoder(frameID);
     }
   }
@@ -211,7 +210,8 @@ class _COMMDecoder extends _ContentDecoder {
     content.set('Language', codec.decode(langBytes));
 
     // Short content descrip
-    final shortContentBytes = codec.readBytesUtilTerminator(bytes.sublist(start));
+    final shortContentBytes =
+        codec.readBytesUtilTerminator(bytes.sublist(start));
     start += shortContentBytes.length;
     content.set('Short content descrip', codec.decode(shortContentBytes.bytes));
 
@@ -242,9 +242,11 @@ class _APICDecoder extends _ContentDecoder {
     start += 1;
 
     // MIME type
-    final mimeBytes = codec.readBytesUtilTerminator(bytes.sublist(start), terminator: [0x00]);
+    final mimeBytes =
+        codec.readBytesUtilTerminator(bytes.sublist(start), terminator: [0x00]);
     start += mimeBytes.length;
-    content.set('MIME', codec.decode(mimeBytes.bytes, forceType: ByteCodecType.ISO_8859_1));
+    content.set('MIME',
+        codec.decode(mimeBytes.bytes, forceType: ByteCodecType.ISO_8859_1));
 
     // Picture type
     final pictype = bytes.sublist(start, start + 1).first;
@@ -257,7 +259,11 @@ class _APICDecoder extends _ContentDecoder {
     content.set('Description', codec.decode(descBytes.bytes));
 
     // Picture data
-    content.set('Base64', base64.encode(bytes.sublist(start)).isNotEmpty ? '<Has Picture Data>' : '<Empty>');
+    content.set(
+        'Base64',
+        base64.encode(bytes.sublist(start)).isNotEmpty
+            ? '<Has Picture Data>'
+            : '<Empty>');
 
     return content;
   }
@@ -283,10 +289,11 @@ class _PICDecoder extends _ContentDecoder {
     final codec = ByteCodec(textEncodingByte: encoding);
     start += 1;
 
-    // Image format 
+    // Image format
     final mimeBytes = bytes.sublist(start, start + 3);
     start += 3;
-    content.set('Image format', codec.decode(mimeBytes, forceType: ByteCodecType.ISO_8859_1));
+    content.set('Image format',
+        codec.decode(mimeBytes, forceType: ByteCodecType.ISO_8859_1));
 
     // Picture type
     final pictype = bytes.sublist(start, start + 1).first;
@@ -299,7 +306,11 @@ class _PICDecoder extends _ContentDecoder {
     content.set('Description', codec.decode(descBytes.bytes));
 
     // Picture data
-    content.set('Base64', base64.encode(bytes.sublist(start)).isNotEmpty ? '<Has Picture Data>' : '<Empty>');
+    content.set(
+        'Base64',
+        base64.encode(bytes.sublist(start)).isNotEmpty
+            ? '<Has Picture Data>'
+            : '<Empty>');
 
     return content;
   }
@@ -327,10 +338,12 @@ class _USLTDecoder extends _ContentDecoder {
     // Language
     final langBytes = bytes.sublist(start, start + 3);
     start += 3;
-    content.set('Language', codec.decode(langBytes, forceType: ByteCodecType.ISO_8859_1));
+    content.set('Language',
+        codec.decode(langBytes, forceType: ByteCodecType.ISO_8859_1));
 
     // Content descriptor
-    final contentDescBytes = codec.readBytesUtilTerminator(bytes.sublist(start));
+    final contentDescBytes =
+        codec.readBytesUtilTerminator(bytes.sublist(start));
     content.set('Content descriptor', codec.decode(contentDescBytes.bytes));
     start += contentDescBytes.length;
 
@@ -364,7 +377,8 @@ class _SYLTDecoder extends _ContentDecoder {
     // Language
     final langBytes = bytes.sublist(start, start + 3);
     start += 3;
-    content.set('Language', codec.decode(langBytes, forceType: ByteCodecType.ISO_8859_1));
+    content.set('Language',
+        codec.decode(langBytes, forceType: ByteCodecType.ISO_8859_1));
 
     // Time stamp format
     final tsfByte = bytes.sublist(start, start + 1).first;
@@ -377,7 +391,8 @@ class _SYLTDecoder extends _ContentDecoder {
     content.set('Content type', contentType[contentTypeByte]);
 
     // Content descriptor
-    final contentDescBytes = codec.readBytesUtilTerminator(bytes.sublist(start));
+    final contentDescBytes =
+        codec.readBytesUtilTerminator(bytes.sublist(start));
     content.set('Content descriptor', codec.decode(contentDescBytes.bytes));
     start += contentDescBytes.length;
 
@@ -385,14 +400,14 @@ class _SYLTDecoder extends _ContentDecoder {
   }
 
   List<String> get contentType => [
-    'other',
-    'lyrics',
-    'text transcription',
-    'movement/part name (e.g. "Adagio")',
-    'events (e.g. "Don Quijote enters the stage")',
-    'chord (e.g. "Bb F Fsus")',
-    "trivia/'pop up' information"
-  ];
+        'other',
+        'lyrics',
+        'text transcription',
+        'movement/part name (e.g. "Adagio")',
+        'events (e.g. "Don Quijote enters the stage")',
+        'chord (e.g. "Bb F Fsus")',
+        "trivia/'pop up' information"
+      ];
 }
 
 /*
@@ -417,9 +432,11 @@ class _GEOBDecoder extends _ContentDecoder {
     start += 1;
 
     // MIME type
-    final mimeBytes = codec.readBytesUtilTerminator(bytes.sublist(start), terminator: [0x00]);
+    final mimeBytes =
+        codec.readBytesUtilTerminator(bytes.sublist(start), terminator: [0x00]);
     start += mimeBytes.length;
-    content.set('MIME type', codec.decode(mimeBytes.bytes, forceType: ByteCodecType.ISO_8859_1));
+    content.set('MIME type',
+        codec.decode(mimeBytes.bytes, forceType: ByteCodecType.ISO_8859_1));
 
     // Filename
     final fileBytes = codec.readBytesUtilTerminator(bytes.sublist(start));
@@ -432,7 +449,11 @@ class _GEOBDecoder extends _ContentDecoder {
     content.set('Content description', codec.decode(descBytes.bytes));
 
     // Encapsulated object
-    content.set('Encapsulated object', bytes.sublist(start).isNotEmpty ? '<Has Encapsulated Data>' : '<Empty>');
+    content.set(
+        'Encapsulated object',
+        bytes.sublist(start).isNotEmpty
+            ? '<Has Encapsulated Data>'
+            : '<Empty>');
     return content;
   }
 }

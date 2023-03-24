@@ -32,5 +32,5 @@
 ## 1.0.0
 * Improve documentation and comments.
 
-## 1.0.1 & 1.0.2
+## 1.0.1 & 1.0.2 & 1.0.3
 * Specifies the naming of variables and classes. And added a litter comments.

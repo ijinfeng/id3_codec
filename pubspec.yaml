@@ -1,6 +1,6 @@
 name: id3_codec
 description: A cross-platform, pure-Dart package for reading and editing ID3 meta data.
-version: 1.0.2
+version: 1.0.3
 homepage: https://github.com/ijinfeng/flutter_id3
 
 environment:

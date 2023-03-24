@@ -26,8 +26,8 @@ abstract class MetadataV2Body extends MetadataEditable {
   const MetadataV2Body();
 }
 
-class MetadataV2_3Body extends MetadataV2Body {
-  const MetadataV2_3Body({
+class MetadataV2p3Body extends MetadataV2Body {
+  const MetadataV2p3Body({
     this.title,
     this.artist,
     this.album,
@@ -56,8 +56,8 @@ class MetadataV2_3Body extends MetadataV2Body {
   final Map<String, String>? userDefines;
 }
 
-class MetadataV2_4Body extends MetadataV2Body {
-  const MetadataV2_4Body({
+class MetadataV2p4Body extends MetadataV2Body {
+  const MetadataV2p4Body({
     this.title,
     this.artist,
     this.album,
@@ -100,10 +100,10 @@ abstract class MetadataEditableWrapper {
   bool hasUnAttachedProperty();
 }
 
-class MetadataV2_3Wrapper extends MetadataEditableWrapper {
-  MetadataV2_3Wrapper(super.body)
-      : assert(body is MetadataV2_3Body),
-        title = MetadataProperty((body as MetadataV2_3Body).title),
+class MetadataV2p3Wrapper extends MetadataEditableWrapper {
+  MetadataV2p3Wrapper(super.body)
+      : assert(body is MetadataV2p3Body),
+        title = MetadataProperty((body as MetadataV2p3Body).title),
         artist = MetadataProperty(body.artist),
         album = MetadataProperty(body.album),
         encoding = MetadataProperty(body.encoding),
@@ -130,10 +130,10 @@ class MetadataV2_3Wrapper extends MetadataEditableWrapper {
   }
 }
 
-class MetadataV2_4Wrapper extends MetadataEditableWrapper {
-  MetadataV2_4Wrapper(super.body, {this.tagRestrictions})
-      : assert(body is MetadataV2_4Body),
-        title = MetadataProperty((body as MetadataV2_4Body).title),
+class MetadataV2p4Wrapper extends MetadataEditableWrapper {
+  MetadataV2p4Wrapper(super.body, {this.tagRestrictions})
+      : assert(body is MetadataV2p4Body),
+        title = MetadataProperty((body as MetadataV2p4Body).title),
         artist = MetadataProperty(body.artist),
         album = MetadataProperty(body.album),
         encoding = MetadataProperty(body.encoding),

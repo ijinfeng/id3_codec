@@ -16,11 +16,13 @@ class ID3MetataInfo {
 
   bool get _hasContainer => _containers.isNotEmpty;
 
+  /// Set start of the range
   void setRangeStart(int start) {
     if (start < 0) return;
     range._start = start;
   }
 
+  /// Set length of the range
   void setRangeLength(int length) {
     if (length < 0) return;
     range._length = length;

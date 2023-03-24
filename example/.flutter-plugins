@@ -1,7 +1,6 @@
 # This is a generated file; do not edit or check into version control.
-path_provider=/Users/zl/Developer/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/path_provider-2.0.11/
-path_provider_android=/Users/zl/Developer/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/path_provider_android-2.0.22/
-path_provider_ios=/Users/zl/Developer/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/path_provider_ios-2.0.11/
-path_provider_linux=/Users/zl/Developer/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/path_provider_linux-2.1.7/
-path_provider_macos=/Users/zl/Developer/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/path_provider_macos-2.0.6/
-path_provider_windows=/Users/zl/Developer/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/path_provider_windows-2.1.3/
+path_provider=/Users/niren/.pub-cache/hosted/pub.dev/path_provider-2.0.14/
+path_provider_android=/Users/niren/.pub-cache/hosted/pub.dev/path_provider_android-2.0.24/
+path_provider_foundation=/Users/niren/.pub-cache/hosted/pub.dev/path_provider_foundation-2.2.0/
+path_provider_linux=/Users/niren/.pub-cache/hosted/pub.dev/path_provider_linux-2.1.10/
+path_provider_windows=/Users/niren/.pub-cache/hosted/pub.dev/path_provider_windows-2.1.5/

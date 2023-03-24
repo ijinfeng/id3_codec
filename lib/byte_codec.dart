@@ -16,7 +16,7 @@ enum ByteCodecType {
 }
 
 /// A global ISO_8859_1 codec
-final iso_8859_1_codec = ByteCodec(textEncodingByte: 0x00);
+final isoCodec = ByteCodec(textEncodingByte: 0x00);
 
 class ByteCodec {
   /// textEncodingByte: codec type

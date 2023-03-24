@@ -23,7 +23,7 @@ abstract class _ID3Decoder {
   dynamic readValue(ID3Fragment fragment, int start, {List<int>? bytes}) {
     final sub = (bytes ?? this.bytes).sublist(start, fragment.length + start);
     if (fragment.needDecode) {
-      return iso_8859_1_codec.decode(sub);
+      return isoCodec.decode(sub);
     } else if (fragment.length == 1) {
       return sub.first;
     }
@@ -671,7 +671,7 @@ class ID3V2Decoder extends _ID3Decoder {
     while (frameSizes > 0) {
       // Frame ID
       final frameID = readValue(frameV2_2[0], start);
-      if (frameID == iso_8859_1_codec.decode([0, 0, 0])) {
+      if (frameID == isoCodec.decode([0, 0, 0])) {
         break;
       }
       start += frameV2_2[0].length;
@@ -711,7 +711,7 @@ class ID3V2Decoder extends _ID3Decoder {
     while (frameSizes > 0) {
       // Frame ID
       final frameID = readValue(frameV2_3[0], start);
-      if (frameID == iso_8859_1_codec.decode([0, 0, 0, 0])) {
+      if (frameID == isoCodec.decode([0, 0, 0, 0])) {
         break;
       }
       start += frameV2_3[0].length;
@@ -792,7 +792,7 @@ class ID3V2Decoder extends _ID3Decoder {
     while (frameSizes > 0) {
       // Frame ID
       final frameID = readValue(frameV2_4[0], start);
-      if (frameID == iso_8859_1_codec.decode([0, 0, 0, 0])) {
+      if (frameID == isoCodec.decode([0, 0, 0, 0])) {
         break;
       }
       start += frameV2_4[0].length;
@@ -1029,7 +1029,7 @@ class ID3V2Decoder extends _ID3Decoder {
     if (start < 0) return 0;
     // ID
     final idBytes = bytes.sublist(start, start + 3);
-    final id = iso_8859_1_codec.decode(idBytes);
+    final id = isoCodec.decode(idBytes);
     if (id != '3DI') {
       return 0;
     }

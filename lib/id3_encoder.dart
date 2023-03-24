@@ -13,7 +13,7 @@ class ID3Encoder {
   /// 
   /// ```dart
   /// final encoder = ID3Encoder(bytes);
-  /// final resultBytes = encoder.encodeSync(MetadataV2_3Body(
+  /// final resultBytes = encoder.encodeSync(MetadataV2p3Body(
   ///             title: '听我说谢谢你！',
   ///             artist: '歌手ijinfeng',
   ///             userDefines: {"时长": '2:48', "userId": "ijinfeng"},
@@ -24,10 +24,10 @@ class ID3Encoder {
     if (data is MetadataV1Body) {
       final encoder = ID3V1Encoder(_bytes);
       return encoder.encode(data);
-    } else if (data is MetadataV2_3Body)  {
+    } else if (data is MetadataV2p3Body)  {
       final encoder = ID3V2_3Encoder(_bytes);
       return encoder.encode(data);
-    } else if (data is MetadataV2_4Body) {
+    } else if (data is MetadataV2p4Body) {
       final encoder = ID3V2_4Encoder(_bytes);
       return encoder.encode(data);
     }
@@ -40,7 +40,7 @@ class ID3Encoder {
   /// 
   /// ```dart
   /// final encoder = ID3Encoder(bytes);
-  /// final resultBytes = await encoder.encodeAsync(MetadataV2_3Body(
+  /// final resultBytes = await encoder.encodeAsync(MetadataV2p3Body(
   ///             title: '听我说谢谢你！',
   ///             artist: '歌手ijinfeng',
   ///             userDefines: {"时长": '2:48', "userId": "ijinfeng"},

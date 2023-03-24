@@ -122,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   final al = {"picUrl":"http://p3.music.126.net/GpnLproqUUyc4xmYKpRFcQ==/109951166516282895.jpg"};
                   final encoder = ID3Encoder(bytes);
 // ignore: prefer_const_constructors
-                  bytes = encoder.encodeSync(MetadataV2_3Body(
+                  bytes = encoder.encodeSync(MetadataV2p3Body(
                     title: '听我说谢谢你！',
                     imageBytes: headerBytes,
                     artist: '歌手ijinfeng',
@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   final encoder = ID3Encoder(bytes);
 // ignore: prefer_const_constructors
-                  bytes = encoder.encodeSync(MetadataV2_4Body(
+                  bytes = encoder.encodeSync(MetadataV2p4Body(
                     title: '拔萝卜',
                     imageBytes: headerBytes,
                     artist: '歌手小兔子',
@@ -171,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   print(HexOutput(ByteUtil.trimStart(bytes)));
 print(HexOutput(ByteUtil.trimEnd(bytes)));
-                  final ret = iso_8859_1_codec.decode(bytes);
+                  final ret = isoCodec.decode(bytes);
                   debugPrint("$ret, ok");
                 },
                 child: const Text('测试无效的编码')),

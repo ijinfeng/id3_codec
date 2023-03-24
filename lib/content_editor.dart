@@ -16,10 +16,10 @@ class ContentEditor {
       required int frameSize,
       bool compression = false,
       required MetadataEditableWrapper data}) {
-    if (data is MetadataV2_3Wrapper) {
+    if (data is MetadataV2p3Wrapper) {
       return _editFrameWithV2_3Data(
           start, frameID, frameSize, compression, data);
-    } else if (data is MetadataV2_4Wrapper) {
+    } else if (data is MetadataV2p4Wrapper) {
       return _editFrameWithV2_4Data(
           start, frameID, frameSize, compression, data);
     }
@@ -28,7 +28,7 @@ class ContentEditor {
   }
 
   EditorResult _editFrameWithV2_3Data(int start, String frameID, int frameSize,
-      bool compression, MetadataV2_3Wrapper data) {
+      bool compression, MetadataV2p3Wrapper data) {
     if (frameID == 'TIT2' && data.title.value != null) {
       return _editFrameWithProperty(
           start, frameID, frameSize, compression, data.title);
@@ -55,7 +55,7 @@ class ContentEditor {
   }
 
   EditorResult _editFrameWithV2_4Data(int start, String frameID, int frameSize,
-      bool compression, MetadataV2_4Wrapper data) {
+      bool compression, MetadataV2p4Wrapper data) {
     if (frameID == 'TIT2' && data.title.value != null) {
       return _editFrameWithProperty(
           start, frameID, frameSize, compression, data.title, tagRestrictions: data.tagRestrictions);

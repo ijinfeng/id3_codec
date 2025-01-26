@@ -262,7 +262,7 @@ class _APICDecoder extends _ContentDecoder {
     content.set(
         'Base64',
         base64.encode(bytes.sublist(start)).isNotEmpty
-            ? '<Has Picture Data>'
+            ? base64.encode(bytes.sublist(start)).toString() //'<Has Picture Data>'
             : '<Empty>');
 
     return content;
@@ -309,7 +309,7 @@ class _PICDecoder extends _ContentDecoder {
     content.set(
         'Base64',
         base64.encode(bytes.sublist(start)).isNotEmpty
-            ? '<Has Picture Data>'
+            ? base64.encode(bytes.sublist(start)).toString() //'<Has Picture Data>'
             : '<Empty>');
 
     return content;
